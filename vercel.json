@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "atoms-ninja",
   "alias": ["atoms.ninja", "www.atoms.ninja"],
   "builds": [
     {
@@ -24,31 +23,20 @@
       "use": "@vercel/static"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/health",
-      "dest": "gemini-proxy.js"
+      "source": "/api/health",
+      "destination": "/gemini-proxy.js"
     },
     {
-      "src": "/api/gemini",
-      "dest": "gemini-proxy.js",
-      "methods": ["POST", "OPTIONS"]
+      "source": "/api/gemini",
+      "destination": "/gemini-proxy.js"
     },
     {
-      "src": "/api/kali",
-      "dest": "gemini-proxy.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/api/kali",
+      "destination": "/gemini-proxy.js"
     }
   ],
-  "env": {
-    "NODE_ENV": "production",
-    "GEMINI_API_KEY": "@gemini-api-key",
-    "KALI_MCP_ENDPOINT": "http://136.113.58.241:3001",
-    "ALLOWED_ORIGINS": "https://atoms.ninja,https://www.atoms.ninja,http://localhost:8000"
-  },
   "headers": [
     {
       "source": "/api/(.*)",
