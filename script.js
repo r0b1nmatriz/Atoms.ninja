@@ -580,6 +580,42 @@ async function processWithAI(command) {
             addTerminalLine(`⚡ Auto-executing: ${a.command}`, 'info');
             await new Promise(resolve => setTimeout(resolve, 300));
             const result = await processCommand(a.command);
+            
+            // Check if command failed and needs retry
+            const output = result.message || '';
+            const needsRetry = output.includes('Host seems down') || 
+                             output.includes('0 hosts up') ||
+                             output.includes('failed') ||
+                             output.includes('error');
+            
+            if (needsRetry) {
+                addTerminalLine('🤔 Atom analyzing failure...', 'info');
+                // Ask AI to suggest alternative approach
+                const retryPrompt = `The command "${a.command}" failed with output: "${output}". Suggest an alternative command to achieve the same goal. Return JSON format: {"action":"execute","command":"[alternative]","explanation":"[why]"}`;
+                
+                try {
+                    const retryResponse = await fetch(`${CONFIG.BACKEND_API_URL}/openai`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: retryPrompt })
+                    });
+                    
+                    if (retryResponse.ok) {
+                        const retryData = await retryResponse.json();
+                        if (retryData.autoExecute && retryData.autoExecute.command) {
+                            addTerminalLine(`💡 Atom suggests: ${retryData.autoExecute.explanation}`, 'info');
+                            addTerminalLine(`⚡ Retrying: ${retryData.autoExecute.command}`, 'info');
+                            await new Promise(resolve => setTimeout(resolve, 300));
+                            const retryResult = await processCommand(retryData.autoExecute.command);
+                            saveChatInteraction(command, retryData.autoExecute.explanation, retryData.autoExecute.command, retryResult.message);
+                            return retryResult;
+                        }
+                    }
+                } catch (retryError) {
+                    console.log('Retry failed, showing original result');
+                }
+            }
+            
             saveChatInteraction(command, a.explanation, a.command, result.message);
             return result;
         }
