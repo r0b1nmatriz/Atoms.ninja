@@ -152,7 +152,45 @@ app.post('/api/kali/tools/:tool', async (req, res) => {
     }
 });
 
-// Kali MCP general execute proxy
+// Kali MCP general proxy - accepts { tool, args }
+app.post('/api/kali', async (req, res) => {
+    try {
+        const { tool, args } = req.body;
+        console.log(`⚡ Proxying to Kali MCP: ${tool} with args:`, args);
+        
+        // Set a longer timeout for the response
+        res.setTimeout(300000); // 5 minutes
+        
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 240000); // 4 min timeout
+        
+        const kaliResponse = await fetch(`http://136.113.58.241:3001/api/execute`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tool, args }),
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeout);
+        
+        if (!kaliResponse.ok) {
+            const error = await kaliResponse.json().catch(() => ({ error: 'Unknown error' }));
+            return res.status(kaliResponse.status).json(error);
+        }
+        
+        const data = await kaliResponse.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Kali MCP Proxy Error:', error);
+        if (error.name === 'AbortError') {
+            res.status(504).json({ error: 'Request timeout - tool took too long to execute' });
+        } else {
+            res.status(500).json({ error: error.message });
+        }
+    }
+});
+
+// Kali MCP general execute proxy (legacy)
 app.post('/api/kali/execute', async (req, res) => {
     try {
         console.log(`⚡ Proxying execute to Kali MCP:`, req.body.command, req.body.args);

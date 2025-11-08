@@ -19,7 +19,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 const CONFIG = {
     GEMINI_API_KEY: '', // Not needed - using backend proxy
     BACKEND_API_URL: 'https://www.atoms.ninja/api',
-    KALI_MCP_ENDPOINT: 'https://www.atoms.ninja/api/kali'
+    KALI_MCP_ENDPOINT: 'https://www.atoms.ninja/api/kali',
+    AI_ENDPOINT: 'https://www.atoms.ninja/api/multi-ai', // Multi-AI with fallback
+    AI_HEALTH_ENDPOINT: 'https://www.atoms.ninja/api/ai-health',
+    AI_MODE: 'fast' // fast | accurate | stealth
 };
 
 // Enhanced Session Manager with persistence
@@ -671,9 +674,17 @@ async function processWithAI(command) {
         // Get chat context
         const chatContext = getChatContext();
         
+        // Detect AI mode based on query criticality
+        const criticalKeywords = ['vulnerability', 'exploit', 'attack chain', 'critical', 'advanced', 'find all'];
+        const isCritical = criticalKeywords.some(kw => command.toLowerCase().includes(kw));
+        const aiMode = isCritical ? 'accurate' : CONFIG.AI_MODE;
+        
+        if (aiMode === 'accurate') {
+            addTerminalLine('🎯 Using ACCURATE mode (multi-AI consensus)...', 'info');
+        }
 
-        // Call backend proxy (OpenAI)
-        const response = await fetch(`${CONFIG.BACKEND_API_URL}/openai`, {
+        // Call Multi-AI endpoint
+        const response = await fetch(CONFIG.AI_ENDPOINT, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -684,25 +695,60 @@ async function processWithAI(command) {
                     role: h.user ? 'user' : 'model',
                     content: h.user || h.ai
                 })),
-                sessionData: currentSession
+                sessionData: currentSession,
+                mode: aiMode
             })
         });
         
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            console.error('Backend API Error:', errorData);
+            console.error('Multi-AI API Error:', errorData);
             
-            if (response.status === 503) {
-                throw new Error('Backend server is not running. Please start the backend: npm start');
-            } else if (response.status === 401 || response.status === 403) {
-                throw new Error('Service account authentication failed. Check backend logs.');
-            } else {
-                throw new Error(errorData.error || `Backend error: ${response.status}`);
+            // Fallback to OpenAI endpoint if multi-AI fails
+            console.log('⚠️  Falling back to OpenAI endpoint...');
+            const fallbackResponse = await fetch(`${CONFIG.BACKEND_API_URL}/openai`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: command,
+                    chatHistory: chatHistory.map(h => ({
+                        role: h.user ? 'user' : 'model',
+                        content: h.user || h.ai
+                    })),
+                    sessionData: currentSession
+                })
+            });
+            
+            if (!fallbackResponse.ok) {
+                throw new Error('All AI endpoints failed');
             }
+            
+            const fallbackData = await fallbackResponse.json();
+            return await handleAIResponse(command, fallbackData);
         }
         
         const data = await response.json();
+        
+        // Show AI metadata
+        if (data.consensus) {
+            addTerminalLine(`🎯 Consensus response (${data.confidence}% confidence, ${data.provider})`, 'success');
+        } else {
+            addTerminalLine(`🤖 Response from ${data.provider} (${data.model})`, 'info');
+        }
+        
+        return await handleAIResponse(command, data);
 
+    } catch (error) {
+        console.error('AI Processing error:', error);
+        return {
+            message: `⚠️ AI error: ${error.message}`,
+            type: 'error'
+        };
+    }
+}
+
+// Handle AI response (extracted for reuse)
+async function handleAIResponse(command, data) {
         // If backend provided a parsed autoExecute command, run it immediately
         if (data.autoExecute && data.autoExecute.action === 'execute' && data.autoExecute.command) {
             const a = data.autoExecute;
@@ -896,33 +942,56 @@ async function processWithAI(command) {
     }
 }
 
-// Execute button handler
-executeBtn.addEventListener('click', () => {
-    executeCommand(commandInput.value);
-});
+// Execute button handler - ensure proper binding
+if (executeBtn) {
+    executeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const command = commandInput.value.trim();
+        if (command) {
+            executeCommand(command);
+        }
+    });
+}
 
 // Enter key to execute
-commandInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        executeCommand(commandInput.value);
-    } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        if (historyIndex < commandHistory.length - 1) {
-            historyIndex++;
-            commandInput.value = commandHistory[historyIndex];
+if (commandInput) {
+    commandInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            e.stopPropagation();
+            const command = commandInput.value.trim();
+            if (command) {
+                executeCommand(command);
+            }
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (historyIndex < commandHistory.length - 1) {
+                historyIndex++;
+                commandInput.value = commandHistory[historyIndex];
+            }
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (historyIndex > 0) {
+                historyIndex--;
+                commandInput.value = commandHistory[historyIndex];
+            } else if (historyIndex === 0) {
+                historyIndex = -1;
+                commandInput.value = '';
+            }
         }
-    } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        if (historyIndex > 0) {
-            historyIndex--;
-            commandInput.value = commandHistory[historyIndex];
-        } else if (historyIndex === 0) {
-            historyIndex = -1;
-            commandInput.value = '';
+    });
+    
+    // Also handle keyup for Enter as fallback
+    commandInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey && !isExecuting) {
+            const command = commandInput.value.trim();
+            if (command) {
+                executeCommand(command);
+            }
         }
-    }
-});
+    });
+}
 
 // Launch console button
 launchBtn.addEventListener('click', () => {
