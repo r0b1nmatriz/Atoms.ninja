@@ -25,6 +25,9 @@ module.exports = async (req, res) => {
 
         console.log(`🔧 Proxying to Kali MCP: ${tool} with args:`, args);
         
+        // Extract target from args (usually the last argument for most tools)
+        const target = args.length > 0 ? args[args.length - 1] : null;
+        
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 120000);
         
@@ -32,7 +35,7 @@ module.exports = async (req, res) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                tool: tool,
+                target: target,
                 args: args 
             }),
             signal: controller.signal
