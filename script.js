@@ -572,6 +572,17 @@ async function processWithAI(command) {
         }
         
         const data = await response.json();
+
+        // If backend provided a parsed autoExecute command, run it immediately
+        if (data.autoExecute && data.autoExecute.action === 'execute' && data.autoExecute.command) {
+            const a = data.autoExecute;
+            addTerminalLine(`💡 ${a.explanation || 'Executing command'}`, 'info');
+            addTerminalLine(`⚡ Auto-executing: ${a.command}`, 'info');
+            await new Promise(resolve => setTimeout(resolve, 300));
+            const result = await processCommand(a.command);
+            saveChatInteraction(command, a.explanation, a.command, result.message);
+            return result;
+        }
         
         // Handle the OpenAI API response format
         const aiResponse = (data.response || data.reply || '').trim();
