@@ -247,7 +247,7 @@ function addTerminalLine(text, type = 'text') {
     
     const prompt = document.createElement('span');
     prompt.className = 'terminal-prompt';
-    prompt.textContent = 'root@atomsninja:~#';
+    prompt.textContent = 'root@kali-ai:~#';
     
     const textSpan = document.createElement('span');
     textSpan.className = `terminal-${type}`;
@@ -406,7 +406,7 @@ async function processCommand(command) {
         }
     } else if (cmd === 'help') {
         return { 
-            message: '🥷 I\'m your AI security architect!\n\nYou can:\n• Ask questions: "what is SQL injection?"\n• Run tools: "scan 192.168.1.1" or "sqlmap -u http://site"\n• Natural language: "find vulnerabilities on example.com"\n\nSupported tools: nmap, sqlmap, nikto, hydra, metasploit, burp, wireshark, and 30+ more!', 
+            message: '🤖 KALI-AI TERMINAL - AI-Powered Kali Linux\n\nNATURAL LANGUAGE:\n• "find os of 192.168.1.1"\n• "scan ports on target.com"\n• "what web server on that ip"\n\nDIRECT COMMANDS:\n• nmap, sqlmap, nikto, hydra, metasploit, burp, wireshark, and 500+ more!\n\nPowered by: Gemini AI + Kali MCP Server', 
             type: 'info' 
         };
     } else {
@@ -536,7 +536,7 @@ async function simulateScan(command) {
 // Process with AI (Google Gemini) - Using Backend Proxy with Auto-Execute
 async function processWithAI(command) {
     try {
-        addTerminalLine('🤖 AI Security Architect is analyzing...', 'info');
+        addTerminalLine('🤖 KALI-AI analyzing...', 'info');
         
         // Get chat context
         const chatContext = getChatContext();
@@ -762,7 +762,7 @@ Now analyze the user's request and respond accordingly.`;
         saveChatInteraction(command, aiResponse);
         
         return {
-            message: `🎯 Security Architect: ${aiResponse}`,
+            message: `🤖 KALI-AI: ${aiResponse}`,
             type: 'success'
         };
     } catch (error) {
