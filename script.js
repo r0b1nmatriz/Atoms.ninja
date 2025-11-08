@@ -650,11 +650,13 @@ Now analyze the user's request and respond accordingly.`;
         
         const data = await response.json();
         
-        if (!data.candidates || !data.candidates[0]?.content?.parts?.[0]?.text) {
+        // Handle the new API response format
+        if (!data.reply) {
+            console.error('Unexpected API response:', data);
             throw new Error('Invalid response format from AI');
         }
         
-        const aiResponse = data.candidates[0].content.parts[0].text.trim();
+        const aiResponse = data.reply.trim();
         
         // Check if AI wants to execute a command (JSON response)
         if (aiResponse.startsWith('{') && aiResponse.includes('"action"')) {

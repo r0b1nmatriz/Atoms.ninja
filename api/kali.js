@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
             return res.status(400).json({ error: 'Tool name is required' });
         }
 
-        console.log(`🔧 Proxying to Kali MCP: ${tool}`);
+        console.log(`🔧 Proxying to Kali MCP: ${tool} with args:`, args);
         
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 120000);
@@ -31,7 +31,10 @@ module.exports = async (req, res) => {
         const kaliResponse = await fetch(`${KALI_MCP_ENDPOINT}/api/tools/${tool}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ args }),
+            body: JSON.stringify({ 
+                tool: tool,
+                args: args 
+            }),
             signal: controller.signal
         });
         
