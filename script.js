@@ -591,71 +591,136 @@ async function processWithAI(command) {
         // If backend provided a parsed autoExecute command, run it immediately
         if (data.autoExecute && data.autoExecute.action === 'execute' && data.autoExecute.command) {
             const a = data.autoExecute;
-            addTerminalLine(`💡 ${a.explanation || 'Executing command'}`, 'info');
-            addTerminalLine(`⚡ Auto-executing: ${a.command}`, 'info');
-            await new Promise(resolve => setTimeout(resolve, 300));
-            const result = await processCommand(a.command);
+            let attempts = 0;
+            let maxAttempts = 3;
+            let currentCommand = a.command;
+            let currentExplanation = a.explanation;
+            let lastOutput = '';
             
-            // Check if command failed OR didn't find useful results
-            const output = result.message || '';
-            const failed = output.includes('Host seems down') || 
-                          output.includes('0 hosts up') ||
-                          output.includes('failed') ||
-                          output.includes('error') ||
-                          output.includes('No vulnerabilities found') ||
-                          output.includes('Note: Host seems down');
-            
-            const noResults = !output.includes('VULNERABLE') && 
-                            !output.includes('open') &&
-                            !output.includes('exploit') &&
-                            output.length < 200;
-            
-            if (failed || noResults) {
-                addTerminalLine('🧠 Atom: Analyzing results and trying alternative methods...', 'warning');
+            // Multi-iteration loop until success or max attempts
+            while (attempts < maxAttempts) {
+                attempts++;
                 
-                // Build context-aware retry prompt
-                const originalGoal = command; // User's original request
-                const retryPrompt = `Original goal: "${originalGoal}"
-Command tried: "${a.command}"
-Output: "${output.substring(0, 300)}"
-
-The scan failed or didn't find vulnerabilities. As an intelligent copilot:
-1. Analyze why it failed
-2. Suggest a DIFFERENT tool/method (try: nikto, nmap with different scripts, whatweb, etc)
-3. Return JSON: {"action":"execute","command":"[different-approach]","explanation":"[why this method]"}
-
-Try alternative scanning methods until we find vulnerabilities. Don't repeat the same approach.`;
+                addTerminalLine(`💡 ${currentExplanation}`, 'info');
+                addTerminalLine(`⚡ ${attempts > 1 ? 'Attempt ' + attempts + ': ' : 'Auto-executing: '}${currentCommand}`, 'info');
+                await new Promise(resolve => setTimeout(resolve, 300));
                 
-                try {
-                    const retryResponse = await fetch(`${CONFIG.BACKEND_API_URL}/openai`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            message: retryPrompt,
-                            chatHistory: chatHistory.slice(-3) // Include recent context
-                        })
-                    });
+                const result = await processCommand(currentCommand);
+                lastOutput = result.message || '';
+                
+                // Check for success indicators
+                const hasVulnerabilities = lastOutput.includes('VULNERABLE') || 
+                                          lastOutput.includes('vulnerable') ||
+                                          lastOutput.includes('exploit') ||
+                                          lastOutput.includes('CVE-') ||
+                                          (lastOutput.includes('open') && lastOutput.length > 300);
+                
+                // Check for failures
+                const hostDown = lastOutput.includes('Host seems down') || 
+                                lastOutput.includes('Note: Host seems down');
+                const noHostsUp = lastOutput.includes('0 hosts up');
+                const timeout = lastOutput.includes('timeout') || lastOutput.includes('timed out');
+                const refused = lastOutput.includes('refused') || lastOutput.includes('filtered');
+                const noResults = lastOutput.length < 200 && !hasVulnerabilities;
+                
+                // SUCCESS - Found vulnerabilities or good results
+                if (hasVulnerabilities || (lastOutput.length > 300 && !hostDown && !noHostsUp)) {
+                    addTerminalLine('✅ Found results!', 'success');
+                    saveChatInteraction(command, `Success after ${attempts} attempt(s)`, currentCommand, lastOutput);
+                    return result;
+                }
+                
+                // FAILURE - Need to retry with smart adjustments
+                if (attempts < maxAttempts) {
+                    addTerminalLine(`🧠 Atom: Method ${attempts} didn't find vulnerabilities. Analyzing...`, 'warning');
                     
-                    if (retryResponse.ok) {
-                        const retryData = await retryResponse.json();
-                        if (retryData.autoExecute && retryData.autoExecute.command) {
-                            addTerminalLine(`💡 Atom: ${retryData.autoExecute.explanation}`, 'info');
-                            addTerminalLine(`⚡ Trying alternative: ${retryData.autoExecute.command}`, 'info');
-                            await new Promise(resolve => setTimeout(resolve, 500));
-                            const retryResult = await processCommand(retryData.autoExecute.command);
+                    // SMART RETRY LOGIC - Pattern matching for common issues
+                    let nextCommand = '';
+                    let nextExplanation = '';
+                    
+                    if (hostDown || noHostsUp) {
+                        // Host blocking pings - add -Pn
+                        if (!currentCommand.includes('-Pn')) {
+                            nextCommand = currentCommand.replace('nmap', 'nmap -Pn');
+                            nextExplanation = 'Bypassing ping check with -Pn flag';
+                        } else {
+                            // Already tried -Pn, switch to different tool
+                            if (currentCommand.includes('nmap')) {
+                                nextCommand = `nikto -h ${extractTarget(currentCommand)}`;
+                                nextExplanation = 'Switching to Nikto web vulnerability scanner';
+                            } else {
+                                nextCommand = `nmap -Pn -sV -sC ${extractTarget(currentCommand)}`;
+                                nextExplanation = 'Deep scan with service detection and default scripts';
+                            }
+                        }
+                    } else if (noResults || timeout) {
+                        // Switch tools strategically
+                        const target = extractTarget(currentCommand);
+                        if (currentCommand.includes('nikto')) {
+                            nextCommand = `nmap -Pn -sV --script=vuln,exploit ${target}`;
+                            nextExplanation = 'Switching to Nmap vulnerability scripts';
+                        } else if (currentCommand.includes('nmap') && !currentCommand.includes('--script')) {
+                            nextCommand = `nmap -Pn --script=http-vuln-*,ssl-* ${target}`;
+                            nextExplanation = 'Trying HTTP and SSL vulnerability scripts';
+                        } else {
+                            nextCommand = `whatweb -v ${target}`;
+                            nextExplanation = 'Scanning web technologies for known vulnerabilities';
+                        }
+                    } else {
+                        // Ask AI for suggestion
+                        const aiPrompt = `Goal: "${command}". Tried: "${currentCommand}". Output: "${lastOutput.substring(0, 200)}". Suggest DIFFERENT tool/approach. Return JSON: {"action":"execute","command":"[cmd]","explanation":"[why]"}`;
+                        
+                        try {
+                            const aiResponse = await fetch(`${CONFIG.BACKEND_API_URL}/openai`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ message: aiPrompt })
+                            });
                             
-                            // Save both attempts
-                            saveChatInteraction(command, `First: ${a.explanation}, Then: ${retryData.autoExecute.explanation}`, retryData.autoExecute.command, retryResult.message);
-                            return retryResult;
+                            if (aiResponse.ok) {
+                                const aiData = await aiResponse.json();
+                                if (aiData.autoExecute) {
+                                    nextCommand = aiData.autoExecute.command;
+                                    nextExplanation = aiData.autoExecute.explanation;
+                                }
+                            }
+                        } catch (e) {
+                            // Fallback if AI fails
+                            nextCommand = `nmap -Pn -p- ${extractTarget(currentCommand)}`;
+                            nextExplanation = 'Full port scan to find all open services';
                         }
                     }
-                } catch (retryError) {
-                    console.log('Retry failed, showing original result');
+                    
+                    if (nextCommand && nextCommand !== currentCommand) {
+                        currentCommand = nextCommand;
+                        currentExplanation = nextExplanation;
+                    } else {
+                        // Can't find new approach, stop
+                        break;
+                    }
+                } else {
+                    // Max attempts reached
+                    addTerminalLine('⚠️ Atom: Tried multiple methods, showing last results', 'warning');
+                    saveChatInteraction(command, `${attempts} attempts made`, currentCommand, lastOutput);
+                    return result;
                 }
             }
             
-            saveChatInteraction(command, a.explanation, a.command, result.message);
-            return result;
+            // Fallback - return last result
+            saveChatInteraction(command, a.explanation, currentCommand, lastOutput);
+            return { message: lastOutput, type: 'info' };
+        }
+        
+        // Helper function to extract target IP/domain from command
+        function extractTarget(cmd) {
+            const parts = cmd.split(' ');
+            for (let i = parts.length - 1; i >= 0; i--) {
+                const part = parts[i];
+                if (part.match(/^\d+\.\d+\.\d+\.\d+$/) || part.match(/^[a-z0-9.-]+\.[a-z]{2,}$/i)) {
+                    return part;
+                }
+            }
+            return parts[parts.length - 1];
         }
         
         // Handle the OpenAI API response format
