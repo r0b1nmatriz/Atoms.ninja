@@ -542,8 +542,8 @@ async function processWithAI(command) {
         const chatContext = getChatContext();
         
 
-        // Call backend proxy
-        const response = await fetch(`${CONFIG.BACKEND_API_URL}/gemini`, {
+        // Call backend proxy (OpenAI)
+        const response = await fetch(`${CONFIG.BACKEND_API_URL}/openai`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
