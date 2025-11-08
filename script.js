@@ -251,7 +251,22 @@ function addTerminalLine(text, type = 'text') {
     
     const textSpan = document.createElement('span');
     textSpan.className = `terminal-${type}`;
-    textSpan.textContent = text;
+    
+    // Handle long output - show full results with scrolling
+    if (text.length > 500) {
+        const lines = text.split('\n');
+        lines.forEach((line, idx) => {
+            const lineSpan = document.createElement('div');
+            lineSpan.textContent = line;
+            lineSpan.style.whiteSpace = 'pre-wrap';
+            lineSpan.style.wordBreak = 'break-word';
+            textSpan.appendChild(lineSpan);
+        });
+    } else {
+        textSpan.textContent = text;
+    }
+    textSpan.style.whiteSpace = 'pre-wrap';
+    textSpan.style.wordBreak = 'break-word';
     
     line.appendChild(prompt);
     line.appendChild(textSpan);
