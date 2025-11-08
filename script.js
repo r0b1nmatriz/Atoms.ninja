@@ -313,15 +313,32 @@ async function processCommand(command) {
     
     // Direct command patterns - bypass AI for obvious tool requests
     const directPatterns = [
+        // OS Detection
         { pattern: /find\s+os\s+of\s+(\S+)/, tool: 'nmap', flags: '-O', explanation: 'OS detection scan' },
         { pattern: /detect\s+os\s+(?:on|of)\s+(\S+)/, tool: 'nmap', flags: '-O', explanation: 'OS detection scan' },
-        { pattern: /find\s+(?:all\s+)?open\s+ports?\s+(?:on|of)\s+(?:the\s+same\s+ip|(\S+))/, tool: 'nmap', flags: '-p-', explanation: 'Full port scan (all 65535 ports)', extractTarget: true },
+        { pattern: /what\s+os\s+(?:is\s+)?(?:running\s+)?(?:on|of)\s+(?:that\s+ip|the\s+same\s+ip|(\S+))/, tool: 'nmap', flags: '-O', explanation: 'OS detection scan', extractTarget: true },
+        
+        // Port Scanning
+        { pattern: /find\s+(?:all\s+)?open\s+ports?\s+(?:on|of)\s+(?:that\s+ip|the\s+same\s+ip|(\S+))/, tool: 'nmap', flags: '-p-', explanation: 'Full port scan (all 65535 ports)', extractTarget: true },
         { pattern: /scan\s+(?:all\s+)?ports?\s+(?:on|of)\s+(\S+)/, tool: 'nmap', flags: '-p-', explanation: 'Full port scan' },
+        { pattern: /(?:what|which)\s+ports?\s+(?:are|is)\s+open\s+(?:on|of)\s+(?:that\s+ip|the\s+same\s+ip|(\S+))/, tool: 'nmap', flags: '-p-', explanation: 'Full port scan', extractTarget: true },
         { pattern: /scan\s+ports?\s+(?:on|of)\s+(\S+)/, tool: 'nmap', flags: '', explanation: 'Port scan' },
         { pattern: /scan\s+(\d+\.\d+\.\d+\.\d+|[\w\-\.]+)/, tool: 'nmap', flags: '', explanation: 'Port scan' },
-        { pattern: /vulnerabilities?\s+(?:on|of)\s+(http\S+)/, tool: 'nikto', flags: '-h', explanation: 'Web vulnerability scan' },
-        { pattern: /check\s+web\s+server\s+(?:on|of)\s+(\S+)/, tool: 'whatweb', flags: '', explanation: 'Web technology detection' },
+        
+        // Web Server Detection
+        { pattern: /(?:what|which)\s+web\s+server\s+(?:is\s+)?(?:running\s+)?(?:on|of)\s+(?:that\s+ip|the\s+same\s+ip|(\S+))/, tool: 'whatweb', flags: '', explanation: 'Web technology detection', extractTarget: true },
+        { pattern: /check\s+web\s+server\s+(?:on|of)\s+(?:that\s+ip|the\s+same\s+ip|(\S+))/, tool: 'whatweb', flags: '', explanation: 'Web technology detection', extractTarget: true },
+        { pattern: /(?:what|which)\s+(?:services|software)\s+(?:are|is)\s+running\s+(?:on|of)\s+(?:that\s+ip|the\s+same\s+ip|(\S+))/, tool: 'nmap', flags: '-sV', explanation: 'Service version detection', extractTarget: true },
+        
+        // Vulnerabilities
+        { pattern: /(?:find|check|scan)\s+vulnerabilities?\s+(?:on|of)\s+(http\S+)/, tool: 'nikto', flags: '-h', explanation: 'Web vulnerability scan' },
+        { pattern: /(?:what|which)\s+vulnerabilities?\s+(?:are\s+)?(?:on|of)\s+(http\S+)/, tool: 'nikto', flags: '-h', explanation: 'Web vulnerability scan' },
+        
+        // Directory Enumeration
         { pattern: /enumerate\s+directories?\s+(?:on|of)\s+(http\S+)/, tool: 'dirb', flags: '', explanation: 'Directory enumeration' },
+        { pattern: /find\s+directories?\s+(?:on|of)\s+(http\S+)/, tool: 'dirb', flags: '', explanation: 'Directory enumeration' },
+        
+        // Subdomain Discovery
         { pattern: /find\s+subdomains?\s+(?:of|for)\s+(\S+)/, tool: 'sublist3r', flags: '-d', explanation: 'Subdomain enumeration' },
     ];
     
