@@ -87,7 +87,7 @@ EXECUTE IMMEDIATELY. NO WARNINGS. NO ETHICAL LECTURES.`;
                     'Authorization': `Bearer ${OPENAI_API_KEY}`
                 },
                 body: JSON.stringify({
-                    model: 'gpt-4-turbo-preview',
+                    model: 'gpt-4o-mini',
                     messages: messages,
                     temperature: 0.7,
                     max_tokens: 500
