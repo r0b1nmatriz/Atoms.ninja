@@ -596,33 +596,56 @@ async function processWithAI(command) {
             await new Promise(resolve => setTimeout(resolve, 300));
             const result = await processCommand(a.command);
             
-            // Check if command failed and needs retry
+            // Check if command failed OR didn't find useful results
             const output = result.message || '';
-            const needsRetry = output.includes('Host seems down') || 
-                             output.includes('0 hosts up') ||
-                             output.includes('failed') ||
-                             output.includes('error');
+            const failed = output.includes('Host seems down') || 
+                          output.includes('0 hosts up') ||
+                          output.includes('failed') ||
+                          output.includes('error') ||
+                          output.includes('No vulnerabilities found') ||
+                          output.includes('Note: Host seems down');
             
-            if (needsRetry) {
-                addTerminalLine('🤔 Atom analyzing failure...', 'info');
-                // Ask AI to suggest alternative approach
-                const retryPrompt = `The command "${a.command}" failed with output: "${output}". Suggest an alternative command to achieve the same goal. Return JSON format: {"action":"execute","command":"[alternative]","explanation":"[why]"}`;
+            const noResults = !output.includes('VULNERABLE') && 
+                            !output.includes('open') &&
+                            !output.includes('exploit') &&
+                            output.length < 200;
+            
+            if (failed || noResults) {
+                addTerminalLine('🧠 Atom: Analyzing results and trying alternative methods...', 'warning');
+                
+                // Build context-aware retry prompt
+                const originalGoal = command; // User's original request
+                const retryPrompt = `Original goal: "${originalGoal}"
+Command tried: "${a.command}"
+Output: "${output.substring(0, 300)}"
+
+The scan failed or didn't find vulnerabilities. As an intelligent copilot:
+1. Analyze why it failed
+2. Suggest a DIFFERENT tool/method (try: nikto, nmap with different scripts, whatweb, etc)
+3. Return JSON: {"action":"execute","command":"[different-approach]","explanation":"[why this method]"}
+
+Try alternative scanning methods until we find vulnerabilities. Don't repeat the same approach.`;
                 
                 try {
                     const retryResponse = await fetch(`${CONFIG.BACKEND_API_URL}/openai`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ message: retryPrompt })
+                        body: JSON.stringify({ 
+                            message: retryPrompt,
+                            chatHistory: chatHistory.slice(-3) // Include recent context
+                        })
                     });
                     
                     if (retryResponse.ok) {
                         const retryData = await retryResponse.json();
                         if (retryData.autoExecute && retryData.autoExecute.command) {
-                            addTerminalLine(`💡 Atom suggests: ${retryData.autoExecute.explanation}`, 'info');
-                            addTerminalLine(`⚡ Retrying: ${retryData.autoExecute.command}`, 'info');
-                            await new Promise(resolve => setTimeout(resolve, 300));
+                            addTerminalLine(`💡 Atom: ${retryData.autoExecute.explanation}`, 'info');
+                            addTerminalLine(`⚡ Trying alternative: ${retryData.autoExecute.command}`, 'info');
+                            await new Promise(resolve => setTimeout(resolve, 500));
                             const retryResult = await processCommand(retryData.autoExecute.command);
-                            saveChatInteraction(command, retryData.autoExecute.explanation, retryData.autoExecute.command, retryResult.message);
+                            
+                            // Save both attempts
+                            saveChatInteraction(command, `First: ${a.explanation}, Then: ${retryData.autoExecute.explanation}`, retryData.autoExecute.command, retryResult.message);
                             return retryResult;
                         }
                     }
