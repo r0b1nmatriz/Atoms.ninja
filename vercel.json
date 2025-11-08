@@ -4,46 +4,6 @@
     "atoms.ninja",
     "www.atoms.ninja"
   ],
-  "builds": [
-    {
-      "src": "gemini-proxy.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "styles.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "script.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "config.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "speed-insights.js",
-      "use": "@vercel/static"
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/health",
-      "destination": "/gemini-proxy.js"
-    },
-    {
-      "source": "/api/gemini",
-      "destination": "/gemini-proxy.js"
-    },
-    {
-      "source": "/api/kali",
-      "destination": "/gemini-proxy.js"
-    }
-  ],
   "headers": [
     {
       "source": "/api/(.*)",

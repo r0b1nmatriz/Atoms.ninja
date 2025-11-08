@@ -1,14 +1,10 @@
 // Atoms Ninja - Configuration
 const CONFIG = {
-    // Backend API (Gemini Proxy)
-    BACKEND_API_URL: window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'http://localhost:3001' 
-        : 'https://atoms.ninja/api',
+    // Backend API (Gemini Proxy) - Always use atoms.ninja
+    BACKEND_API_URL: 'https://atoms.ninja/api',
     
-    // Kali Linux MCP Server (GCP VM)
-    KALI_MCP_ENDPOINT: window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'http://136.113.58.241:3001'
-        : 'https://atoms.ninja/api/kali',
+    // Kali Linux MCP Server (GCP VM) - Always use atoms.ninja proxy
+    KALI_MCP_ENDPOINT: 'https://atoms.ninja/api/kali',
     
     // GCP Configuration
     GCP: {
