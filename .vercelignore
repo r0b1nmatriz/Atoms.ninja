@@ -11,3 +11,25 @@ setup.sh
 *.md
 kali-mcp-server.js
 test.js
+
+# Ignore old API files - only use index.js
+api/ai-health.js
+api/ai-router.js
+api/attack-chain.js
+api/copilot.js
+api/cve-lookup.js
+api/gemini.js
+api/github-copilot.js
+api/health.js
+api/kali.js
+api/multi-ai.js
+api/openai.js
+api/ai-providers/
+
+# Backup files
+*.bak
+*.bak2
+*.bak3
+
+my-workflow-app/
+

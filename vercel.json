@@ -4,6 +4,12 @@
     "atoms.ninja",
     "www.atoms.ninja"
   ],
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/index.js"
+    }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",

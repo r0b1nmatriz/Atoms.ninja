@@ -943,55 +943,100 @@ async function handleAIResponse(command, data) {
 }
 
 // Execute button handler - ensure proper binding
-if (executeBtn) {
-    executeBtn.addEventListener('click', (e) => {
+function setupExecuteHandlers() {
+    const btn = document.getElementById('executeBtn');
+    const input = document.getElementById('commandInput');
+    
+    if (!btn || !input) {
+        console.error('Execute button or command input not found');
+        setTimeout(setupExecuteHandlers, 500); // Retry after 500ms
+        return;
+    }
+    
+    console.log('✓ Setting up execute handlers...');
+    
+    // Remove ALL existing listeners by cloning elements
+    const newBtn = btn.cloneNode(true);
+    const newInput = input.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+    input.parentNode.replaceChild(newInput, input);
+    
+    // Get fresh references
+    const executeButton = document.getElementById('executeBtn');
+    const commandField = document.getElementById('commandInput');
+    
+    // Add click handler with proper event binding
+    executeButton.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        const command = commandInput.value.trim();
-        if (command) {
+        console.log('🖱️ Execute button clicked!');
+        const command = commandField.value.trim();
+        if (command && !isExecuting) {
+            console.log('➡️ Executing:', command);
             executeCommand(command);
+        } else if (!command) {
+            console.log('⚠️ No command entered');
+        } else if (isExecuting) {
+            console.log('⚠️ Already executing a command');
         }
-    });
-}
-
-// Enter key to execute
-if (commandInput) {
-    commandInput.addEventListener('keydown', (e) => {
+    }, false);
+    
+    // Enter key to execute - both keydown AND keypress for maximum compatibility
+    commandField.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             e.stopPropagation();
-            const command = commandInput.value.trim();
-            if (command) {
+            console.log('⏎ Enter key pressed!');
+            const command = commandField.value.trim();
+            if (command && !isExecuting) {
+                console.log('➡️ Executing:', command);
                 executeCommand(command);
             }
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             if (historyIndex < commandHistory.length - 1) {
                 historyIndex++;
-                commandInput.value = commandHistory[historyIndex];
+                commandField.value = commandHistory[historyIndex];
             }
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
             if (historyIndex > 0) {
                 historyIndex--;
-                commandInput.value = commandHistory[historyIndex];
+                commandField.value = commandHistory[historyIndex];
             } else if (historyIndex === 0) {
                 historyIndex = -1;
-                commandInput.value = '';
+                commandField.value = '';
             }
         }
-    });
+    }, false);
     
-    // Also handle keyup for Enter as fallback
-    commandInput.addEventListener('keyup', (e) => {
+    // Backup: Also listen for keypress as fallback
+    commandField.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && !e.shiftKey && !isExecuting) {
-            const command = commandInput.value.trim();
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('⏎ Enter keypress detected!');
+            const command = commandField.value.trim();
             if (command) {
+                console.log('➡️ Executing:', command);
                 executeCommand(command);
             }
         }
-    });
+    }, false);
+    
+    console.log('✅ Execute handlers initialized successfully');
 }
+
+// Call setup IMMEDIATELY when script loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupExecuteHandlers);
+} else {
+    // DOM already loaded
+    setupExecuteHandlers();
+}
+
+// Also call again after a delay to ensure DOM is fully ready
+setTimeout(setupExecuteHandlers, 1000);
 
 // Launch console button
 launchBtn.addEventListener('click', () => {
@@ -1293,6 +1338,9 @@ window.addEventListener('load', () => {
     // Load chat history and session from localStorage
     loadChatHistory();
     loadCurrentSession();
+    
+    // Setup execute handlers (ensure DOM is ready)
+    setupExecuteHandlers();
     
     console.log(`%c📝 Loaded ${chatHistory.length} previous interactions from memory`, 'color: #10B981;');
     console.log(`%c📊 Session: ${currentSession.targets.size} targets, ${currentSession.findings.length} findings`, 'color: #10B981;');
