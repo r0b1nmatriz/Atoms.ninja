@@ -406,7 +406,7 @@ async function processCommand(command) {
         }
     } else if (cmd === 'help') {
         return { 
-            message: '🤖 Atom at your service, sir.\n\nCOMMANDS:\n• Natural: "find os of 192.168.1.1" | "scan that ip"\n• Direct: nmap, sqlmap, nikto, hydra, metasploit\n\nNinja ready with 500+ tools. What\'s your target?', 
+            message: '🤖 Atom at your service, Chief.\n\nTalk naturally:\n• "check os on 192.168.1.1"\n• "scan that target"\n• "find vulnerabilities"\n\nOr direct commands:\n• nmap, sqlmap, nikto, hydra\n\nNinja ready. What\'s the target?', 
             type: 'info' 
         };
     } else {
