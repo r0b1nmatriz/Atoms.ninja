@@ -247,7 +247,7 @@ function addTerminalLine(text, type = 'text') {
     
     const prompt = document.createElement('span');
     prompt.className = 'terminal-prompt';
-    prompt.textContent = 'atom@ninja:~#';
+    prompt.textContent = 'root@kali-ai:~#';
     
     const textSpan = document.createElement('span');
     textSpan.className = `terminal-${type}`;

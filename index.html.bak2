@@ -105,11 +105,11 @@
                         </div>
                         <div class="terminal-output" id="terminalOutput">
                             <div class="terminal-line">
-                                <span class="terminal-prompt">atom@ninja:~#</span>
+                                <span class="terminal-prompt">root@atomsninja:~#</span>
                                 <span class="terminal-text">System initialized. Ninja engine online.</span>
                             </div>
                             <div class="terminal-line">
-                                <span class="terminal-prompt">atom@ninja:~#</span>
+                                <span class="terminal-prompt">root@atomsninja:~#</span>
                                 <span class="terminal-text">🤖 Atom initialized. Ninja ready.</span>
                             </div>
                             <div class="terminal-line">
