@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genius Mode - Atoms.Ninja</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <img src="/logo.png" alt="Atoms Ninja" class="logo-icon" style="width: 40px; height: 40px; border-radius: 8px;">
+                <span class="logo-text">Atoms.Ninja</span>
+            </div>
+            <nav class="nav">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/features.html" class="nav-link">Features</a>
+                <a href="/genius-mode.html" class="nav-link active">Genius Mode</a>
+            </nav>
+        </header>
+
+        <section class="hero" style="padding: 60px 20px;">
+            <h1 class="hero-title">🧠 Genius Mode</h1>
+            <p class="hero-description">Autonomous multi-phase attack orchestration</p>
+
+            <div style="max-width: 900px; margin: 60px auto 0;">
+                <div class="card" style="margin-bottom: 40px;">
+                    <h2>Autonomous Attack Chains</h2>
+                    <p style="margin-top: 15px; color: #9CA3AF;">
+                        Atom AI automatically orchestrates complex penetration testing workflows by chaining multiple tools
+                        based on discovered vulnerabilities and services.
+                    </p>
+                </div>
+
+                <h2 style="margin-bottom: 30px;">Attack Phases</h2>
+                <div class="grid" style="display: grid; gap: 20px; margin-bottom: 60px;">
+                    <div class="card">
+                        <h3>Phase 1: Reconnaissance</h3>
+                        <ul style="margin-top: 15px; padding-left: 20px; color: #9CA3AF;">
+                            <li>WHOIS lookup (ownership, registration)</li>
+                            <li>DNS enumeration (subdomains, mail servers)</li>
+                            <li>Certificate transparency logs</li>
+                            <li>Historical DNS records</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>Phase 2: Network Mapping</h3>
+                        <ul style="margin-top: 15px; padding-left: 20px; color: #9CA3AF;">
+                            <li>Port scanning (all protocols)</li>
+                            <li>Service detection & versioning</li>
+                            <li>OS fingerprinting</li>
+                            <li>Banner grabbing</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>Phase 3: Vulnerability Discovery</h3>
+                        <ul style="margin-top: 15px; padding-left: 20px; color: #9CA3AF;">
+                            <li>Web vulnerability scanning</li>
+                            <li>CVE matching (known exploits)</li>
+                            <li>Misconfiguration detection</li>
+                            <li>Directory enumeration</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>Phase 4: Exploitation Planning</h3>
+                        <ul style="margin-top: 15px; padding-left: 20px; color: #9CA3AF;">
+                            <li>Exploit suggestion based on findings</li>
+                            <li>Payload generation</li>
+                            <li>Attack chain recommendations</li>
+                            <li>Privilege escalation vectors</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h2 style="margin-bottom: 30px;">Command Examples</h2>
+                <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 30px; margin-bottom: 40px;">
+                    <pre style="color: #E5E7EB; font-family: monospace; line-height: 1.8;">
+<span style="color: #8B5CF6;">atom@ninja:~#</span> <span style="color: #10B981;">pwn example.com</span>
+<span style="color: #6B7280;"># Full autonomous attack chain from recon to exploitation</span>
+
+<span style="color: #8B5CF6;">atom@ninja:~#</span> <span style="color: #10B981;">find entry point on target.com</span>
+<span style="color: #6B7280;"># Intelligent recon → vuln discovery → exploit suggestion</span>
+
+<span style="color: #8B5CF6;">atom@ninja:~#</span> <span style="color: #10B981;">exploit 192.168.1.1</span>
+<span style="color: #6B7280;"># Auto-analyze previous scans and suggest attack vectors</span>
+
+<span style="color: #8B5CF6;">atom@ninja:~#</span> <span style="color: #10B981;">use all methods on api.target.com</span>
+<span style="color: #6B7280;"># Deploy complete bypass and exploitation arsenal</span>
+                    </pre>
+                </div>
+
+                <h2 style="margin-bottom: 30px;">Intelligent Features</h2>
+                <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <div class="card">
+                        <h4>🎯 Context Awareness</h4>
+                        <p style="margin-top: 10px; color: #9CA3AF;">Remembers all scans, correlates findings, builds target dossier</p>
+                    </div>
+                    <div class="card">
+                        <h4>🔄 Adaptive Escalation</h4>
+                        <p style="margin-top: 10px; color: #9CA3AF;">Auto-escalates based on discoveries (port 80 → web vuln scan)</p>
+                    </div>
+                    <div class="card">
+                        <h4>🎭 Evasion Intelligence</h4>
+                        <p style="margin-top: 10px; color: #9CA3AF;">Detects WAF/IDS and applies stealth techniques automatically</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 60px; text-align: center;">
+                <a href="/" class="btn-large btn-primary">Try Genius Mode</a>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started - Atoms.Ninja</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <img src="/logo.png" alt="Atoms Ninja" class="logo-icon" style="width: 40px; height: 40px; border-radius: 8px;">
+                <span class="logo-text">Atoms.Ninja</span>
+            </div>
+            <nav class="nav">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/docs.html" class="nav-link active">Docs</a>
+            </nav>
+        </header>
+
+        <section class="hero" style="padding: 60px 20px;">
+            <h1 class="hero-title">📚 Getting Started</h1>
+            <p class="hero-description">Quick start guide for Atoms.Ninja</p>
+
+            <div style="max-width: 900px; margin: 60px auto 0;">
+                <div class="card" style="margin-bottom: 40px;">
+                    <h2>Step 1: Launch Terminal</h2>
+                    <p style="margin-top: 15px; color: #9CA3AF;">
+                        Click "INIT TERMINAL" on the homepage to access the Atom AI interface.
+                        The terminal will initialize with Kali MCP server connection.
+                    </p>
+                </div>
+
+                <div class="card" style="margin-bottom: 40px;">
+                    <h2>Step 2: Natural Language Commands</h2>
+                    <p style="margin-top: 15px; color: #9CA3AF;">
+                        Talk to Atom like you would to Jarvis. Use natural language:
+                    </p>
+                    <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 20px; margin-top: 15px;">
+                        <pre style="color: #E5E7EB; font-family: monospace;">
+"scan example.com"
+"find vulnerabilities in 192.168.1.1"
+"pwn target.com"
+"what ports are open?"
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 40px;">
+                    <h2>Step 3: Direct Tool Commands</h2>
+                    <p style="margin-top: 15px; color: #9CA3AF;">
+                        Or use direct Kali Linux commands:
+                    </p>
+                    <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 20px; margin-top: 15px;">
+                        <pre style="color: #E5E7EB; font-family: monospace;">
+nmap -sV target.com
+nikto -h http://target.com
+sqlmap -u http://target.com?id=1
+dirb http://target.com
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 40px;">
+                    <h2>Step 4: Genius Mode</h2>
+                    <p style="margin-top: 15px; color: #9CA3AF;">
+                        Trigger autonomous attack chains:
+                    </p>
+                    <ul style="margin-top: 15px; padding-left: 20px; color: #9CA3AF;">
+                        <li><code>exploit target.com</code> - Full web app pentest</li>
+                        <li><code>find entry point on target.com</code> - Intelligent recon</li>
+                        <li><code>use all methods on target.com</code> - Complete arsenal</li>
+                        <li><code>bypass waf on target.com</code> - WAF evasion techniques</li>
+                    </ul>
+                </div>
+
+                <h2 style="margin-bottom: 30px;">Basic Commands</h2>
+                <div class="grid" style="display: grid; gap: 20px; margin-bottom: 40px;">
+                    <div class="card">
+                        <h4>Reconnaissance</h4>
+                        <pre style="color: #9CA3AF; margin-top: 10px;">whois example.com
+dig example.com
+nmap -sn 192.168.1.0/24</pre>
+                    </div>
+                    <div class="card">
+                        <h4>Web Scanning</h4>
+                        <pre style="color: #9CA3AF; margin-top: 10px;">whatweb http://target.com
+nikto -h http://target.com
+dirb http://target.com</pre>
+                    </div>
+                    <div class="card">
+                        <h4>Exploitation</h4>
+                        <pre style="color: #9CA3AF; margin-top: 10px;">sqlmap -u http://target.com?id=1
+msfconsole
+searchsploit apache 2.4</pre>
+                    </div>
+                </div>
+
+                <div class="card" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);">
+                    <h3 style="color: #10B981;">💡 Pro Tips</h3>
+                    <ul style="margin-top: 15px; padding-left: 20px; color: #9CA3AF;">
+                        <li>Use "help" to see available tools</li>
+                        <li>Press Enter to execute commands</li>
+                        <li>Atom AI learns from your scans and suggests next steps</li>
+                        <li>All sessions are automatically saved</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="margin-top: 60px; text-align: center;">
+                <a href="/" class="btn-large btn-primary">Start Hacking</a>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAF Bypass - Atoms.Ninja</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <img src="/logo.png" alt="Atoms Ninja" class="logo-icon" style="width: 40px; height: 40px; border-radius: 8px;">
+                <span class="logo-text">Atoms.Ninja</span>
+            </div>
+            <nav class="nav">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/waf-bypass.html" class="nav-link active">WAF Bypass</a>
+            </nav>
+        </header>
+
+        <section class="hero" style="padding: 60px 20px;">
+            <h1 class="hero-title">🛡️ WAF Bypass Arsenal</h1>
+            <p class="hero-description">Advanced evasion techniques for Cloudflare, AWS WAF, ModSecurity</p>
+
+            <div style="max-width: 900px; margin: 60px auto 0;">
+                <h2 style="margin-bottom: 30px;">Bypass Techniques</h2>
+
+                <div class="card" style="margin-bottom: 30px;">
+                    <h3>1. Origin IP Discovery</h3>
+                    <p style="margin-top: 15px; color: #9CA3AF;">Bypass CDN protection by finding the real server IP:</p>
+                    <ul style="margin-top: 15px; padding-left: 20px; color: #9CA3AF;">
+                        <li>DNS history lookup & certificate transparency</li>
+                        <li>Subdomain enumeration (find unprotected endpoints)</li>
+                        <li>Mail server discovery (often unprotected)</li>
+                        <li>SPF record analysis for origin IPs</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="margin-bottom: 30px;">
+                    <h3>2. HTTP Header Manipulation</h3>
+                    <ul style="margin-top: 15px; padding-left: 20px; color: #9CA3AF;">
+                        <li>X-Originating-IP, X-Forwarded-For spoofing</li>
+                        <li>Host header bypass (localhost, 127.0.0.1)</li>
+                        <li>User-Agent rotation (bot impersonation)</li>
+                        <li>Custom header injection</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="margin-bottom: 30px;">
+                    <h3>3. Payload Encoding</h3>
+                    <ul style="margin-top: 15px; padding-left: 20px; color: #9CA3AF;">
+                        <li>URL encoding (single & double)</li>
+                        <li>Unicode, Hex, Base64 obfuscation</li>
+                        <li>Case variation (ScRiPt)</li>
+                        <li>Null byte injection</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="margin-bottom: 30px;">
+                    <h3>4. Request Fragmentation</h3>
+                    <ul style="margin-top: 15px; padding-left: 20px; color: #9CA3AF;">
+                        <li>SQL: SEL/**/ECT * FR/**/OM users</li>
+                        <li>HTTP parameter pollution</li>
+                        <li>Chunked encoding</li>
+                        <li>HTTP/2 smuggling</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="margin-bottom: 30px;">
+                    <h3>5. Rate Limiting Evasion</h3>
+                    <ul style="margin-top: 15px; padding-left: 20px; color: #9CA3AF;">
+                        <li>IP rotation (proxies, Tor, VPN)</li>
+                        <li>Time-based delays & randomization</li>
+                        <li>Distributed request sources</li>
+                        <li>Session token reuse</li>
+                    </ul>
+                </div>
+
+                <h2 style="margin-bottom: 30px;">Command Examples</h2>
+                <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 30px; margin-bottom: 40px;">
+                    <pre style="color: #E5E7EB; font-family: monospace; line-height: 1.8;">
+<span style="color: #8B5CF6;">atom@ninja:~#</span> <span style="color: #10B981;">bypass waf on target.com</span>
+<span style="color: #6B7280;"># Multi-method WAF bypass techniques</span>
+
+<span style="color: #8B5CF6;">atom@ninja:~#</span> <span style="color: #10B981;">find origin ip for target.com</span>
+<span style="color: #6B7280;"># Discover real server behind Cloudflare</span>
+
+<span style="color: #8B5CF6;">atom@ninja:~#</span> <span style="color: #10B981;">implement all methods on target.com</span>
+<span style="color: #6B7280;"># Full arsenal deployment (7 bypass phases)</span>
+
+<span style="color: #8B5CF6;">atom@ninja:~#</span> <span style="color: #10B981;">stealthy scan target.com</span>
+<span style="color: #6B7280;"># IDS/WAF evasion with slow timing</span>
+                    </pre>
+                </div>
+
+                <div class="card" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);">
+                    <h3 style="color: #EF4444;">⚠️ Responsible Use</h3>
+                    <p style="margin-top: 15px; color: #9CA3AF;">
+                        WAF bypass techniques are for <strong>authorized penetration testing only</strong>.
+                        Always have explicit permission before testing any target. Unauthorized access is illegal.
+                    </p>
+                </div>
+            </div>
+
+            <div style="margin-top: 60px; text-align: center;">
+                <a href="/" class="btn-large btn-primary">Launch Arsenal</a>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

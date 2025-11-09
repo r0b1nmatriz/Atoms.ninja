@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - Atoms.Ninja</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <img src="/logo.png" alt="Atoms Ninja" class="logo-icon" style="width: 40px; height: 40px; border-radius: 8px;">
+                <span class="logo-text">Atoms.Ninja</span>
+            </div>
+            <nav class="nav">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/docs.html" class="nav-link">Docs</a>
+                <a href="/api.html" class="nav-link active">API</a>
+            </nav>
+        </header>
+
+        <section class="hero" style="padding: 60px 20px;">
+            <h1 class="hero-title">⚡ API Reference</h1>
+            <p class="hero-description">Integrate Atoms.Ninja into your workflow</p>
+
+            <div style="max-width: 900px; margin: 60px auto 0;">
+                <div class="card" style="margin-bottom: 40px;">
+                    <h2>Base URL</h2>
+                    <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 20px; margin-top: 15px;">
+                        <pre style="color: #E5E7EB; font-family: monospace;">https://atoms.ninja/api/v1</pre>
+                    </div>
+                </div>
+
+                <h2 style="margin-bottom: 30px;">Endpoints</h2>
+
+                <div class="card" style="margin-bottom: 30px;">
+                    <h3>POST /execute</h3>
+                    <p style="margin-top: 10px; color: #9CA3AF;">Execute security tool command via Kali MCP</p>
+                    <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 20px; margin-top: 15px;">
+                        <pre style="color: #E5E7EB; font-family: monospace; font-size: 12px;">
+POST /api/execute
+Content-Type: application/json
+
+{
+  "tool": "nmap",
+  "args": ["-sV", "target.com"]
+}
+
+Response:
+{
+  "output": "..scan results..",
+  "exitCode": 0
+}
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 30px;">
+                    <h3>POST /ai/chat</h3>
+                    <p style="margin-top: 10px; color: #9CA3AF;">Natural language command execution</p>
+                    <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 20px; margin-top: 15px;">
+                        <pre style="color: #E5E7EB; font-family: monospace; font-size: 12px;">
+POST /api/ai/chat
+Content-Type: application/json
+
+{
+  "message": "scan example.com for vulnerabilities"
+}
+
+Response:
+{
+  "action": "execute",
+  "command": "nmap -sV example.com",
+  "explanation": "Port scanning..."
+}
+                        </pre>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 30px;">
+                    <h3>GET /tools</h3>
+                    <p style="margin-top: 10px; color: #9CA3AF;">List available security tools</p>
+                    <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 20px; margin-top: 15px;">
+                        <pre style="color: #E5E7EB; font-family: monospace; font-size: 12px;">
+GET /api/tools
+
+Response:
+{
+  "tools": [
+    "nmap", "nikto", "sqlmap", "metasploit", ...
+  ],
+  "count": 500
+}
+                        </pre>
+                    </div>
+                </div>
+
+                <h2 style="margin-bottom: 30px;">Authentication</h2>
+                <div class="card">
+                    <p style="color: #9CA3AF;">All requests require API key in header:</p>
+                    <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 20px; margin-top: 15px;">
+                        <pre style="color: #E5E7EB; font-family: monospace;">
+Authorization: Bearer YOUR_API_KEY
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
