@@ -1079,6 +1079,64 @@ async function handleAIResponse(command, data) {
             throw new Error('Invalid response format from AI');
         }
         
+        // Check if AI returned multiple commands (genius mode)
+        if (aiResponse.includes('{\n  "action"') && aiResponse.split('{\n  "action"').length > 2) {
+            addTerminalLine('🧠 GENIUS MODE: Multi-phase attack chain detected!', 'success');
+            
+            // Extract all JSON command objects
+            const commands = [];
+            const jsonMatches = aiResponse.match(/\{[^}]*"action":\s*"execute"[^}]*\}/g);
+            
+            if (jsonMatches && jsonMatches.length > 0) {
+                for (const jsonStr of jsonMatches) {
+                    try {
+                        const parsed = JSON.parse(jsonStr);
+                        if (parsed.action === 'execute' && parsed.command) {
+                            commands.push(parsed);
+                        }
+                    } catch (e) {
+                        console.log('Failed to parse JSON:', jsonStr);
+                    }
+                }
+            }
+            
+            if (commands.length > 0) {
+                addTerminalLine(`📋 ATTACK PLAN: ${commands.length} phases identified`, 'info');
+                
+                // Execute each command sequentially
+                let allResults = '';
+                for (let i = 0; i < commands.length; i++) {
+                    const cmd = commands[i];
+                    addTerminalLine(`\n━━━ PHASE ${i + 1}/${commands.length} ━━━`, 'info');
+                    addTerminalLine(`💡 ${cmd.explanation}`, 'info');
+                    if (cmd.intelligence) {
+                        addTerminalLine(`🧠 INTEL: ${cmd.intelligence}`, 'info');
+                    }
+                    addTerminalLine(`⚡ Executing: ${cmd.command}`, 'info');
+                    
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    
+                    // Execute directly
+                    const parts = cmd.command.trim().split(/\s+/);
+                    const toolName = parts[0];
+                    const result = await executeSecurityTool(cmd.command, toolName);
+                    
+                    allResults += `\n\n=== PHASE ${i + 1}: ${cmd.explanation} ===\n${result.message}\n`;
+                    
+                    // Brief pause between phases
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+                
+                addTerminalLine('\n━━━ ATTACK CHAIN COMPLETE ━━━', 'success');
+                saveChatInteraction(command, `Multi-phase attack: ${commands.length} phases`, commands.map(c => c.command).join('; '), allResults);
+                
+                return {
+                    message: allResults,
+                    type: 'success'
+                };
+            }
+        }
+        
         // Check if AI wants to execute a command (JSON response)
         if (aiResponse.startsWith('{') && aiResponse.includes('"action"')) {
             try {
