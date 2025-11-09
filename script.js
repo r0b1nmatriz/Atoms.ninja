@@ -408,6 +408,58 @@ function formatMilitaryText(text) {
     
     return str
         .replace(/(Chief|Sir|Roger|Affirmative|Copy|Target acquired)/gi, '<strong style="color: #00ff00;">$1</strong>')
+        .replace(/(ERROR|FAILED|CRITICAL)/gi, '<strong style="color: #ff0000;">$1</strong>')
+        .replace(/(SUCCESS|COMPLETE|FOUND)/gi, '<strong style="color: #00ff41;">$1</strong>');
+}
+
+// Add animated progress indicator
+function addProgressIndicator() {
+    const line = document.createElement('div');
+    line.className = 'terminal-line terminal-progress';
+    line.id = 'progress-indicator';
+    
+    const spinner = document.createElement('span');
+    spinner.className = 'progress-spinner';
+    
+    const text = document.createElement('span');
+    text.textContent = 'Scanning in progress';
+    text.style.color = 'var(--color-neon-bright)';
+    
+    const progressBarContainer = document.createElement('div');
+    progressBarContainer.className = 'progress-bar-container';
+    
+    const progressBar = document.createElement('div');
+    progressBar.className = 'progress-bar';
+    
+    progressBarContainer.appendChild(progressBar);
+    
+    line.appendChild(spinner);
+    line.appendChild(text);
+    line.appendChild(progressBarContainer);
+    
+    // Remove cursor before adding progress
+    const cursor = terminalOutput.querySelector('.terminal-cursor');
+    if (cursor) cursor.remove();
+    
+    terminalOutput.appendChild(line);
+    
+    // Add cursor back
+    const newCursor = document.createElement('div');
+    newCursor.className = 'terminal-cursor';
+    newCursor.textContent = '_';
+    terminalOutput.appendChild(newCursor);
+    
+    // Scroll to bottom
+    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+}
+
+// Remove progress indicator
+function removeProgressIndicator() {
+    const indicator = document.getElementById('progress-indicator');
+    if (indicator) {
+        indicator.remove();
+    }
+}
         .replace(/(Mission|Target|Protocol|Status|Executing|Deploying)/gi, '<strong style="color: #00d4ff;">$1</strong>')
         .replace(/(CRITICAL|URGENT|ALERT|THREAT|VULNERABILITY)/gi, '<strong style="color: #ff0055;">$1</strong>')
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -561,12 +613,14 @@ async function processCommand(command) {
 async function executeSecurityTool(command, toolName) {
     addTerminalLine(`🔧 Initializing ${toolName}...`, 'info');
     addTerminalLine(`⚡ Executing: ${command}`, 'info');
-    addTerminalLine('🔍 Connecting to Kali MCP, Chief...', 'info');
     
-    // Long-running tool warning
-    const slowTools = ['nikto', 'sqlmap', 'dirb', 'wpscan', 'masscan'];
+    // Long-running tool warning with progress bar
+    const slowTools = ['nikto', 'sqlmap', 'dirb', 'wpscan', 'masscan', 'nmap'];
     if (slowTools.includes(toolName)) {
-        addTerminalLine(`⏳ ${toolName} may take 2-10 minutes. Please wait...`, 'warning');
+        addTerminalLine(`⏳ ${toolName} scan in progress. This may take 2-10 minutes...`, 'warning');
+        addProgressIndicator();
+    } else {
+        addTerminalLine('🔍 Connecting to Kali MCP, Chief...', 'info');
     }
     
     try {
@@ -605,6 +659,9 @@ async function executeSecurityTool(command, toolName) {
         const data = await response.json();
         console.log('🔧 DEBUG - Response data:', data);
         
+        // Remove progress indicator
+        removeProgressIndicator();
+        
         const scanOutput = data.result || data.stdout || '';
         
         // Store scan in session
@@ -630,6 +687,9 @@ async function executeSecurityTool(command, toolName) {
         };
     } catch (error) {
         console.error('🔧 DEBUG - Full error:', error);
+        
+        // Remove progress indicator on error
+        removeProgressIndicator();
         
         // Handle timeout specifically
         if (error.name === 'AbortError') {

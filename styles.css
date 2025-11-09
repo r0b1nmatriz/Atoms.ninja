@@ -460,6 +460,59 @@ button {
     50%, 100% { opacity: 0; }
 }
 
+/* Progress Animation */
+.terminal-progress {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-neon-bright);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.progress-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--color-neon-green);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.progress-bar-container {
+    width: 300px;
+    height: 4px;
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-neon-green);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 8px 0;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.progress-bar {
+    height: 100%;
+    background: var(--gradient-primary);
+    animation: progress-fill 3s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(0, 255, 65, 0.8); }
+    50% { opacity: 0.7; text-shadow: 0 0 15px rgba(0, 255, 65, 1); }
+}
+
+@keyframes progress-fill {
+    0% { width: 0%; }
+    50% { width: 80%; }
+    100% { width: 95%; }
+}
+
 .terminal-output::-webkit-scrollbar {
     width: 10px;
 }
