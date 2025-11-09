@@ -852,10 +852,17 @@ async function handleAIResponse(command, data) {
         if (data.autoExecute && data.autoExecute.action === 'execute' && data.autoExecute.command) {
             const a = data.autoExecute;
             let attempts = 0;
-            let maxAttempts = 3;
+            let maxAttempts = 5; // Increased for genius mode
             let currentCommand = a.command;
             let currentExplanation = a.explanation;
             let lastOutput = '';
+            let discoveredServices = [];
+            let discoveredVulns = [];
+            
+            // Display tactical intelligence if provided
+            if (a.intelligence) {
+                addTerminalLine(`🧠 TACTICAL INTEL: ${a.intelligence}`, 'info');
+            }
             
             // Multi-iteration loop until success or max attempts
             while (attempts < maxAttempts) {
@@ -884,6 +891,23 @@ async function handleAIResponse(command, data) {
                                           lastOutput.match(/\d+\/tcp.*open/i) ||
                                           (lastOutput.includes('open') && lastOutput.length > 300);
                 
+                // Auto-extract discovered services for intelligent next steps
+                const openPortsMatch = lastOutput.match(/(\d+)\/tcp\s+open\s+(\w+)/gi);
+                if (openPortsMatch) {
+                    openPortsMatch.forEach(match => {
+                        const parts = match.match(/(\d+)\/tcp\s+open\s+(\w+)/i);
+                        if (parts) {
+                            discoveredServices.push({ port: parts[1], service: parts[2] });
+                        }
+                    });
+                }
+                
+                // Auto-extract vulnerabilities
+                if (lastOutput.includes('CVE-')) {
+                    const cveMatches = lastOutput.match(/CVE-\d{4}-\d{4,}/gi);
+                    if (cveMatches) discoveredVulns.push(...cveMatches);
+                }
+                
                 // Check for failures
                 const hostDown = lastOutput.includes('Host seems down') || 
                                 lastOutput.includes('Note: Host seems down');
@@ -895,23 +919,32 @@ async function handleAIResponse(command, data) {
                 
                 // SUCCESS - Found vulnerabilities or good results
                 if (hasVulnerabilities || (lastOutput.length > 300 && !hostDown && !noHostsUp)) {
-                    addTerminalLine('✅ Found results!', 'success');
+                    addTerminalLine('✅ Attack vector discovered!', 'success');
+                    
+                    // Display discovered intelligence
+                    if (discoveredServices.length > 0) {
+                        addTerminalLine(`🎯 DISCOVERED SERVICES: ${discoveredServices.map(s => `${s.service}:${s.port}`).join(', ')}`, 'success');
+                    }
+                    if (discoveredVulns.length > 0) {
+                        addTerminalLine(`🚨 VULNERABILITIES FOUND: ${discoveredVulns.join(', ')}`, 'warning');
+                    }
+                    
                     saveChatInteraction(command, `Success after ${attempts} attempt(s)`, currentCommand, lastOutput);
                     return result;
                 }
                 
                 // FAILURE - Need to retry with smart adjustments
                 if (attempts < maxAttempts) {
-                    addTerminalLine(`🧠 Atom: Method ${attempts} didn't achieve goal. Iterating...`, 'warning');
+                    addTerminalLine(`🧠 ATOM AI: Adapting strategy. Attempt ${attempts}/${maxAttempts}...`, 'warning');
                     await new Promise(resolve => setTimeout(resolve, 500));
                     
-                    // SMART RETRY LOGIC - Pattern matching for common issues
+                    // GENIUS MODE: Intelligent tool progression
                     let nextCommand = '';
                     let nextExplanation = '';
                     const target = extractTarget(currentCommand);
                     
-                    // OSINT progression chain
-                    if (command.toLowerCase().includes('osint')) {
+                    // OSINT chain with intelligent escalation
+                    if (command.toLowerCase().includes('osint') || command.toLowerCase().includes('recon')) {
                         if (currentCommand.includes('whois')) {
                             nextCommand = `dig ${target} ANY`;
                             nextExplanation = 'Phase 2: DNS record enumeration';
