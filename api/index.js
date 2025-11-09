@@ -1,6 +1,7 @@
 // Unified API Handler for Vercel - All endpoints in one function
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const OpenAI = require('openai');
+const fetch = require('node-fetch');
 
 // Initialize AI clients
 const geminiClient = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
@@ -144,31 +145,39 @@ ${sessionData?.targets?.length ? `Current targets: ${Array.from(sessionData.targ
 
     // Kali MCP endpoint
     if (path === '/api/kali') {
-      const { tool, args } = req.body;
+      const { tool, args = [], command } = req.body;
+      const cmd = command || tool;
 
-      if (!tool) {
-        return res.status(400).json({ error: 'Tool name required' });
+      if (!cmd) {
+        return res.status(400).json({ error: 'Tool/command name required' });
       }
 
-      // Simulate tool execution (replace with actual MCP call)
-      const mcpUrl = process.env.KALI_MCP_URL || 'https://34.131.132.133';
+      // Use the correct working MCP endpoint
+      const mcpUrl = process.env.KALI_MCP_ENDPOINT || 'http://136.113.58.241:3001';
       
       try {
-        const response = await fetch(`${mcpUrl}/execute`, {
+        console.log(`🔧 Proxying to Kali MCP: ${cmd} with args:`, args);
+        
+        const response = await fetch(`${mcpUrl}/api/execute`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tool, args }),
-          timeout: 60000
+          body: JSON.stringify({ command: cmd, args }),
+          timeout: 240000
         });
 
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+          return res.status(response.status).json(error);
+        }
+
         const data = await response.json();
-        return res.status(response.status).json(data);
+        return res.status(200).json(data);
       } catch (error) {
-        // Fallback simulation for development
-        return res.status(200).json({
-          result: `Simulated ${tool} output:\n\nTool: ${tool}\nArgs: ${JSON.stringify(args)}\n\nNote: Connect to actual Kali MCP server for real execution.`,
-          stderr: '',
-          exitCode: 0
+        console.error('Kali MCP connection error:', error);
+        return res.status(503).json({
+          error: 'Failed to connect to Kali MCP server',
+          message: error.message,
+          endpoint: mcpUrl
         });
       }
     }
