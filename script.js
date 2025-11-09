@@ -1067,10 +1067,13 @@ async function handleAIResponse(command, data) {
         
         // Check if AI returned multiple commands (genius mode)
         // Handle both array format [{"action":...}] and multiple objects
-        if (aiResponse.startsWith('[') && aiResponse.includes('"action"')) {
-            // Array format
+        // Look for array anywhere in response, not just at start
+        const arrayMatch = aiResponse.match(/\[\s*\{[\s\S]*?"action"[\s\S]*?\}\s*\]/);
+        
+        if (arrayMatch) {
+            // Extract the array
             try {
-                const commands = JSON.parse(aiResponse);
+                const commands = JSON.parse(arrayMatch[0]);
                 if (Array.isArray(commands) && commands.length > 0) {
                     addTerminalLine('🧠 GENIUS MODE: Multi-phase attack chain detected!', 'success');
                     addTerminalLine(`📋 ATTACK PLAN: ${commands.length} phases identified`, 'info');
@@ -1082,11 +1085,7 @@ async function handleAIResponse(command, data) {
                         if (cmd.action !== 'execute' || !cmd.command) continue;
                         
                         addTerminalLine(`\n━━━ PHASE ${i + 1}/${commands.length} ━━━`, 'info');
-                        addTerminalLine(`💡 ${cmd.explanation}`, 'info');
-                        if (cmd.intelligence) {
-                            addTerminalLine(`🧠 INTEL: ${cmd.intelligence}`, 'info');
-                        }
-                        addTerminalLine(`⚡ Executing: ${cmd.command}`, 'info');
+                        addTerminalLine(`⚡ Executing...`, 'info');
                         
                         await new Promise(resolve => setTimeout(resolve, 800));
                         
@@ -1095,7 +1094,7 @@ async function handleAIResponse(command, data) {
                         const toolName = parts[0];
                         const result = await executeSecurityTool(cmd.command, toolName);
                         
-                        allResults += `\n\n=== PHASE ${i + 1}: ${cmd.explanation} ===\n${result.message}\n`;
+                        allResults += `\n\n=== PHASE ${i + 1} ===\n${result.message}\n`;
                         
                         // Brief pause between phases
                         if (i < commands.length - 1) {
