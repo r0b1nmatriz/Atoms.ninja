@@ -865,7 +865,10 @@ async function handleAIResponse(command, data) {
                 addTerminalLine(`⚡ ${attempts > 1 ? 'Attempt ' + attempts + ': ' : 'Auto-executing: '}${currentCommand}`, 'info');
                 await new Promise(resolve => setTimeout(resolve, 300));
                 
-                const result = await processCommand(currentCommand);
+                // Execute directly without re-parsing (AI already provided correct command)
+                const parts = currentCommand.trim().split(/\s+/);
+                const toolName = parts[0];
+                const result = await executeSecurityTool(currentCommand, toolName);
                 lastOutput = result.message || '';
                 
                 // Check for success indicators (more comprehensive)
