@@ -624,8 +624,6 @@ async function executeSecurityTool(command, toolName) {
         const tool = parts[0]; // First part is the tool name
         const args = parts.slice(1); // Rest are arguments
         
-        console.log('🔧 DEBUG - Tool:', tool, 'Args:', args);
-        console.log('🔧 DEBUG - Endpoint:', CONFIG.KALI_MCP_ENDPOINT);
         
         // Create abort controller with 10 minute timeout (600s)
         const controller = new AbortController();
@@ -643,16 +641,13 @@ async function executeSecurityTool(command, toolName) {
         
         clearTimeout(timeoutId);
         
-        console.log('🔧 DEBUG - Response status:', response.status);
         
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('🔧 DEBUG - Error response:', errorText);
             throw new Error(`MCP returned ${response.status}: ${errorText}`);
         }
         
         const data = await response.json();
-        console.log('🔧 DEBUG - Response data:', data);
         
         // Remove progress indicator
         removeProgressIndicator();
@@ -681,7 +676,6 @@ async function executeSecurityTool(command, toolName) {
             scanOutput
         };
     } catch (error) {
-        console.error('🔧 DEBUG - Full error:', error);
         
         // Remove progress indicator on error
         removeProgressIndicator();
@@ -725,8 +719,6 @@ async function simulateScan(command) {
             ? `${CONFIG.KALI_MCP_ENDPOINT}/tools/nmap`
             : `${CONFIG.KALI_MCP_ENDPOINT}/api/tools/nmap`;
         
-        console.log('🔧 DEBUG - Endpoint:', endpoint);
-        console.log('🔧 DEBUG - Target:', target, 'Options:', options);
         
         const response = await fetch(endpoint, {
             method: 'POST',
@@ -734,16 +726,13 @@ async function simulateScan(command) {
             body: JSON.stringify({ target, options })
         });
         
-        console.log('🔧 DEBUG - Response status:', response.status);
         
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('🔧 DEBUG - Error response:', errorText);
             throw new Error(`MCP Server returned ${response.status}: ${errorText}`);
         }
         
         const data = await response.json();
-        console.log('🔧 DEBUG - Response data:', data);
         
         if (data.stderr && data.stderr.trim()) {
             return { message: `⚠️ Scan error:\n${data.stderr}`, type: 'error' };
@@ -754,9 +743,6 @@ async function simulateScan(command) {
             type: 'success'
         };
     } catch (error) {
-        console.error('🔧 DEBUG - Full error:', error);
-        console.error('🔧 DEBUG - Error message:', error.message);
-        console.error('🔧 DEBUG - Error stack:', error.stack);
         return {
             message: `❌ Mission failed, Chief: ${error.message}\n\nCheck browser console for details.`,
             type: 'error'
