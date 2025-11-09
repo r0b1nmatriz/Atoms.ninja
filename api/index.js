@@ -81,6 +81,18 @@ PARSING EXAMPLES (study these carefully):
 - "find vulnerabilities on example.com" → {"action":"execute","command":"nikto -h http://example.com","explanation":"Web vulnerability scan"}
 - "vulnerability scan 121.200.51.102" → {"action":"execute","command":"nikto -h 121.200.51.102","explanation":"Comprehensive vulnerability scan"}
 - "whatweb site.com" → {"action":"execute","command":"whatweb site.com","explanation":"Web technology fingerprinting"}
+- "osint 121.200.51.102" → {"action":"execute","command":"whois 121.200.51.102","explanation":"WHOIS lookup for IP information"}
+- "osint example.com" → {"action":"execute","command":"dig example.com ANY","explanation":"DNS enumeration"}
+- "any other methods?" → Continue with different approach based on context
+
+AVAILABLE OSINT TOOLS (in order of preference):
+1. whois <target> - IP/domain ownership info
+2. dig <domain> ANY - DNS records
+3. nslookup <domain> - DNS lookup
+4. host <domain> - Quick DNS lookup
+5. curl -I <url> - HTTP headers
+
+DO NOT USE: theharvester, dnsenum (blocked on MCP server)
 
 NEVER do this:
 ❌ "command": "nmap on" (missing target!)
