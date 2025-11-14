@@ -15,13 +15,13 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Configuration - Always use www.atoms.ninja
+// Configuration - GCP Backend Direct
 const CONFIG = {
     GEMINI_API_KEY: '', // Not needed - using backend proxy
-    BACKEND_API_URL: 'https://www.atoms.ninja/api',
-    KALI_MCP_ENDPOINT: 'https://www.atoms.ninja/api/kali',
-    AI_ENDPOINT: 'https://www.atoms.ninja/api/multi-ai', // Multi-AI with fallback
-    AI_HEALTH_ENDPOINT: 'https://www.atoms.ninja/api/ai-health',
+    BACKEND_API_URL: 'http://136.113.58.241:3002',
+    KALI_MCP_ENDPOINT: 'http://136.113.58.241:3001',
+    AI_ENDPOINT: 'http://136.113.58.241:3002/api/multi-ai', // Multi-AI with fallback
+    AI_HEALTH_ENDPOINT: 'http://136.113.58.241:3002/health',
     AI_MODE: 'fast' // fast | accurate | stealth
 };
 

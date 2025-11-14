@@ -1,10 +1,10 @@
 // Atoms Ninja - Configuration
 const CONFIG = {
-    // Backend API (Gemini Proxy) - Always use www.atoms.ninja
-    BACKEND_API_URL: 'https://www.atoms.ninja/api',
+    // Backend API (Gemini Proxy) - GCP VM Direct
+    BACKEND_API_URL: 'http://136.113.58.241:3002',
     
-    // Kali Linux MCP Server (GCP VM) - Always use www.atoms.ninja proxy
-    KALI_MCP_ENDPOINT: 'https://www.atoms.ninja/api/kali',
+    // Kali Linux MCP Server (GCP VM) - Direct connection
+    KALI_MCP_ENDPOINT: 'http://136.113.58.241:3001',
     
     // GCP Configuration
     GCP: {
