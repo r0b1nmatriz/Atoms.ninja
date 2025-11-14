@@ -19,7 +19,8 @@
             </div>
             <nav class="nav">
                 <a href="#features" class="nav-link">Features</a>
-                <a href="#pricing" class="nav-link">Pricing</a>
+                <a href="/tools.html" class="nav-link">Tools</a>
+                <a href="/metasploit-easy.html" class="nav-link">Metasploit Easy</a>
                 <button class="btn-secondary" id="settingsBtn">
                     <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
                         <circle cx="12" cy="12" r="3"/>
@@ -97,15 +98,19 @@
                         <div class="terminal-output" id="terminalOutput">
                             <div class="terminal-line">
                                 <span class="terminal-prompt">atom@ninja:~#</span>
-                                <span class="terminal-text">System initialized. Ninja engine online.</span>
+                                <span class="terminal-text">⚡ Atoms.Ninja Cyber Operations Terminal v2.0</span>
                             </div>
                             <div class="terminal-line">
                                 <span class="terminal-prompt">atom@ninja:~#</span>
-                                <span class="terminal-text">🤖 Atom initialized. Ninja ready.</span>
+                                <span class="terminal-text">🤖 Atom AI: Ready for cyber operations, Chief.</span>
                             </div>
                             <div class="terminal-line">
                                 <span class="terminal-prompt">atom@ninja:~#</span>
-                                <span class="terminal-text terminal-success">Chief, Atom here. Natural language or direct commands. What's the target?</span>
+                                <span class="terminal-text terminal-success">💬 Natural language: "scan 192.168.1.1" or Direct: nmap -sV target.com</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-prompt">atom@ninja:~#</span>
+                                <span class="terminal-text">🎯 Quick commands: help | targets | vulns | sessions | clear</span>
                             </div>
                             <div class="terminal-cursor">_</div>
                         </div>
@@ -282,6 +287,9 @@
         </div>
     </div>
 
+    <!-- Load enhanced terminal features first -->
+    <script src="terminal-enhancements.js"></script>
+    <!-- Then load main scripts -->
     <script src="script.js"></script>
     <script type="module" src="speed-insights.js"></script>
 </body>

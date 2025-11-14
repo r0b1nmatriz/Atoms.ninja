@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metasploit Arsenal - Atoms.Ninja</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .metasploit-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .msf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .msf-card {
+            background: rgba(17, 24, 39, 0.5);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 30px;
+        }
+        
+        .msf-card h3 {
+            color: #A78BFA;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #D1D5DB;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            color: #F3F4F6;
+            font-size: 14px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #8B5CF6;
+        }
+        
+        select.form-control {
+            cursor: pointer;
+        }
+        
+        .btn-msf {
+            width: 100%;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #8B5CF6, #6366F1);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-msf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+        }
+        
+        .btn-msf:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .output-box {
+            background: #0F172A;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #10B981;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-indicator.active {
+            background: #10B981;
+            box-shadow: 0 0 10px #10B981;
+        }
+        
+        .status-indicator.inactive {
+            background: #EF4444;
+        }
+        
+        .payload-list {
+            margin-top: 20px;
+        }
+        
+        .payload-item {
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .payload-info {
+            flex: 1;
+        }
+        
+        .payload-name {
+            color: #A78BFA;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .payload-details {
+            color: #9CA3AF;
+            font-size: 13px;
+        }
+        
+        .payload-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-small {
+            padding: 8px 16px;
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid #8B5CF6;
+            border-radius: 6px;
+            color: #A78BFA;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        .btn-small:hover {
+            background: rgba(139, 92, 246, 0.4);
+        }
+        
+        .listener-status {
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .session-item {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10B981;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .session-id {
+            color: #10B981;
+            font-weight: 600;
+        }
+        
+        .session-info {
+            color: #9CA3AF;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <img src="/logo.png" alt="Atoms Ninja" class="logo-icon" style="width: 40px; height: 40px; border-radius: 8px;">
+                <span class="logo-text">Atoms.Ninja</span>
+            </div>
+            <nav class="nav">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/metasploit.html" class="nav-link active">Advanced</a>
+                <a href="/metasploit-easy.html" class="nav-link">Easy Mode</a>
+            </nav>
+        </header>
+
+        <div class="metasploit-container">
+            <div class="hero" style="text-align: center; padding: 40px 0;">
+                <div class="badge">💣 METASPLOIT FRAMEWORK</div>
+                <h1 class="hero-title">Exploitation Arsenal</h1>
+                <p class="hero-description">Generate payloads, setup listeners, and manage exploit sessions</p>
+            </div>
+
+            <div class="msf-grid">
+                <!-- Payload Generator -->
+                <div class="msf-card">
+                    <h3>🎯 Payload Generator</h3>
+                    
+                    <div class="form-group">
+                        <label>Payload Type</label>
+                        <select id="payloadType" class="form-control">
+                            <optgroup label="Windows">
+                                <option value="windows/meterpreter/reverse_tcp">Windows Meterpreter (Reverse TCP)</option>
+                                <option value="windows/meterpreter/reverse_https">Windows Meterpreter (Reverse HTTPS)</option>
+                                <option value="windows/shell/reverse_tcp">Windows Shell (Reverse TCP)</option>
+                                <option value="windows/x64/meterpreter/reverse_tcp">Windows x64 Meterpreter (Reverse TCP)</option>
+                            </optgroup>
+                            <optgroup label="Linux">
+                                <option value="linux/x86/meterpreter/reverse_tcp">Linux x86 Meterpreter (Reverse TCP)</option>
+                                <option value="linux/x64/meterpreter/reverse_tcp">Linux x64 Meterpreter (Reverse TCP)</option>
+                                <option value="linux/x86/shell/reverse_tcp">Linux Shell (Reverse TCP)</option>
+                            </optgroup>
+                            <optgroup label="Android">
+                                <option value="android/meterpreter/reverse_tcp">Android Meterpreter (Reverse TCP)</option>
+                                <option value="android/meterpreter/reverse_https">Android Meterpreter (Reverse HTTPS)</option>
+                            </optgroup>
+                            <optgroup label="Web">
+                                <option value="php/meterpreter/reverse_tcp">PHP Meterpreter (Reverse TCP)</option>
+                                <option value="java/jsp_shell_reverse_tcp">JSP Shell (Reverse TCP)</option>
+                                <option value="python/meterpreter/reverse_tcp">Python Meterpreter (Reverse TCP)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Format</label>
+                        <select id="payloadFormat" class="form-control">
+                            <option value="exe">EXE (Windows Executable)</option>
+                            <option value="elf">ELF (Linux Executable)</option>
+                            <option value="apk">APK (Android Package)</option>
+                            <option value="war">WAR (Java Web Archive)</option>
+                            <option value="raw">RAW (Binary)</option>
+                            <option value="c">C Language</option>
+                            <option value="python">Python Script</option>
+                            <option value="powershell">PowerShell Script</option>
+                            <option value="vba">VBA Macro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>LHOST (Your IP)</label>
+                        <input type="text" id="lhost" class="form-control" placeholder="192.168.1.100">
+                    </div>
+
+                    <div class="form-group">
+                        <label>LPORT (Your Port)</label>
+                        <input type="number" id="lport" class="form-control" value="4444" min="1" max="65535">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Encoder (Optional)</label>
+                        <select id="encoder" class="form-control">
+                            <option value="">None</option>
+                            <option value="x86/shikata_ga_nai">x86/shikata_ga_nai (Excellent)</option>
+                            <option value="x64/zutto_dekiru">x64/zutto_dekiru (Excellent)</option>
+                            <option value="x86/call4_dword_xor">x86/call4_dword_xor (Good)</option>
+                            <option value="cmd/powershell_base64">cmd/powershell_base64</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Iterations</label>
+                        <input type="number" id="iterations" class="form-control" value="1" min="1" max="10">
+                    </div>
+
+                    <button class="btn-msf" id="generatePayloadBtn">
+                        <span>🔨 Generate Payload</span>
+                    </button>
+
+                    <div id="payloadOutput" class="output-box" style="display: none;"></div>
+                </div>
+
+                <!-- Listener Setup -->
+                <div class="msf-card">
+                    <h3>👂 Listener Manager</h3>
+                    
+                    <div class="form-group">
+                        <label>Handler Type</label>
+                        <select id="handlerType" class="form-control">
+                            <option value="exploit/multi/handler">Multi Handler (Universal)</option>
+                            <option value="exploit/windows/http/rejetto_hfs_exec">Rejetto HFS</option>
+                            <option value="exploit/windows/smb/ms17_010_eternalblue">EternalBlue (MS17-010)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Payload for Handler</label>
+                        <select id="handlerPayload" class="form-control">
+                            <option value="windows/meterpreter/reverse_tcp">Windows Meterpreter (Reverse TCP)</option>
+                            <option value="linux/x86/meterpreter/reverse_tcp">Linux Meterpreter (Reverse TCP)</option>
+                            <option value="android/meterpreter/reverse_tcp">Android Meterpreter (Reverse TCP)</option>
+                            <option value="php/meterpreter/reverse_tcp">PHP Meterpreter (Reverse TCP)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Listen IP</label>
+                        <input type="text" id="listenerLhost" class="form-control" placeholder="0.0.0.0">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Listen Port</label>
+                        <input type="number" id="listenerLport" class="form-control" value="4444" min="1" max="65535">
+                    </div>
+
+                    <button class="btn-msf" id="startListenerBtn">
+                        <span>🎧 Start Listener</span>
+                    </button>
+
+                    <button class="btn-msf" id="stopListenerBtn" style="margin-top: 10px; background: linear-gradient(135deg, #EF4444, #DC2626); display: none;">
+                        <span>⏹️ Stop Listener</span>
+                    </button>
+
+                    <div class="listener-status" id="listenerStatus">
+                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <span class="status-indicator inactive" id="statusIndicator"></span>
+                            <span style="color: #D1D5DB; font-weight: 600;">Status: <span id="statusText">Inactive</span></span>
+                        </div>
+                        <div style="color: #9CA3AF; font-size: 13px;" id="listenerInfo">No active listener</div>
+                    </div>
+
+                    <div id="sessionsContainer"></div>
+
+                    <div id="listenerOutput" class="output-box" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Generated Payloads List -->
+            <div class="msf-card" style="margin-top: 30px;">
+                <h3>📦 Generated Payloads</h3>
+                <div id="payloadsList" class="payload-list">
+                    <p style="color: #9CA3AF; text-align: center;">No payloads generated yet</p>
+                </div>
+            </div>
+
+            <!-- Quick Commands Reference -->
+            <div class="msf-card" style="margin-top: 30px;">
+                <h3>⚡ Quick Commands Reference</h3>
+                <div class="output-box" style="display: block;">
+                    <div style="margin-bottom: 10px;"><span style="color: #A78BFA;">Search exploits:</span> search type:exploit platform:windows</div>
+                    <div style="margin-bottom: 10px;"><span style="color: #A78BFA;">Show options:</span> show options</div>
+                    <div style="margin-bottom: 10px;"><span style="color: #A78BFA;">Set RHOST:</span> set RHOST 192.168.1.100</div>
+                    <div style="margin-bottom: 10px;"><span style="color: #A78BFA;">Run exploit:</span> exploit -j (background)</div>
+                    <div style="margin-bottom: 10px;"><span style="color: #A78BFA;">List sessions:</span> sessions -l</div>
+                    <div style="margin-bottom: 10px;"><span style="color: #A78BFA;">Interact session:</span> sessions -i 1</div>
+                    <div style="margin-bottom: 10px;"><span style="color: #A78BFA;">Meterpreter help:</span> help</div>
+                    <div><span style="color: #A78BFA;">Background session:</span> background</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="metasploit.js"></script>
+</body>
+</html>

@@ -168,6 +168,90 @@ app.post('/api/tools/metasploit', async (req, res) => {
   }
 });
 
+// Msfvenom payload generation
+app.post('/api/tools/msfvenom', async (req, res) => {
+  try {
+    const { payload, lhost, lport, format = 'exe', encoder, iterations = 1, output } = req.body;
+    if (!payload || !lhost || !lport) {
+      return res.status(400).json({ error: 'Payload, LHOST, and LPORT required' });
+    }
+    
+    const args = [
+      '-p', payload,
+      `LHOST=${lhost}`,
+      `LPORT=${lport}`,
+      '-f', format
+    ];
+    
+    if (encoder) {
+      args.push('-e', encoder);
+      args.push('-i', iterations.toString());
+    }
+    
+    if (output) {
+      args.push('-o', output);
+    }
+    
+    const result = await executeTool('msfvenom', args, { timeout: 120000 });
+    res.json({ 
+      tool: 'msfvenom', 
+      result: result.stdout, 
+      stderr: result.stderr,
+      output: output 
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Metasploit listener management
+app.post('/api/tools/msf-handler', async (req, res) => {
+  try {
+    const { handler = 'exploit/multi/handler', payload, lhost, lport, action = 'start' } = req.body;
+    
+    if (action === 'start') {
+      if (!payload || !lhost || !lport) {
+        return res.status(400).json({ error: 'Payload, LHOST, and LPORT required' });
+      }
+      
+      const msfCommand = `use ${handler}; set PAYLOAD ${payload}; set LHOST ${lhost}; set LPORT ${lport}; set ExitOnSession false; exploit -j -z`;
+      
+      const result = await executeTool('msfconsole', ['-q', '-x', msfCommand], { timeout: 60000 });
+      res.json({ 
+        tool: 'msf-handler',
+        action: 'start',
+        result: result.stdout,
+        stderr: result.stderr 
+      });
+    } else if (action === 'sessions') {
+      const result = await executeTool('msfconsole', ['-q', '-x', 'sessions -l; exit'], { timeout: 30000 });
+      res.json({ 
+        tool: 'msf-handler',
+        action: 'sessions',
+        result: result.stdout 
+      });
+    } else {
+      res.status(400).json({ error: 'Invalid action' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Searchsploit integration
+app.post('/api/tools/searchsploit', async (req, res) => {
+  try {
+    const { query, options = '' } = req.body;
+    if (!query) return res.status(400).json({ error: 'Search query required' });
+    
+    const args = options ? options.split(' ').concat([query]) : [query];
+    const result = await executeTool('searchsploit', args, { timeout: 60000 });
+    res.json({ tool: 'searchsploit', result: result.stdout, stderr: result.stderr });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Wireless tools
 app.post('/api/tools/aircrack', async (req, res) => {
   try {
@@ -307,7 +391,8 @@ app.post('/api/execute', async (req, res) => {
       'whois', 'dig', 'host', 'nslookup',
       'whatweb', 'wpscan', 'searchsploit',
       'curl', 'wget', 'netcat', 'nc', 'hping3',
-      'wfuzz', 'ffuf', 'dirsearch'
+      'wfuzz', 'ffuf', 'dirsearch',
+      'msfvenom', 'msfconsole', 'msfdb'
     ];
     
     if (!allowedCommands.includes(command)) {
