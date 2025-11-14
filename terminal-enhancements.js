@@ -322,40 +322,53 @@ window.processQuickCommand = function(input) {
 
 // Enhance execute button handler
 if (typeof window !== 'undefined') {
-    window.addEventListener('DOMContentLoaded', function() {
+    // Wait for both DOM and other scripts to load
+    let initAttempts = 0;
+    const maxAttempts = 10;
+    
+    function initializeTerminalEnhancements() {
         const executeBtn = document.getElementById('executeBtn');
         const commandInput = document.getElementById('commandInput');
         
-        if (executeBtn && commandInput) {
-            // Enter key handler
-            commandInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    executeBtn.click();
-                }
-            });
+        if (!executeBtn || !commandInput) {
+            initAttempts++;
+            if (initAttempts < maxAttempts) {
+                setTimeout(initializeTerminalEnhancements, 300);
+            }
+            return;
+        }
+        
+        // Store original execute command if it exists
+        const originalExecuteCommand = window.executeCommand;
+        let isProcessing = false;
+        
+        // Enhanced execute handler
+        window.executeCommand = async function(command) {
+            if (isProcessing) return; // Prevent double execution
             
-            // Enhanced execute handler
-            const originalExecute = window.executeCommand;
-            window.executeCommand = async function(command) {
-                const input = command || commandInput.value.trim();
-                if (!input) return;
-                
+            const input = command || commandInput.value.trim();
+            if (!input) return;
+            
+            isProcessing = true;
+            
+            try {
                 // Add user input to terminal
                 if (typeof addTerminalLine === 'function') {
                     addTerminalLine(`> ${input}`, 'info');
                 }
+                
+                // Clear input immediately
+                commandInput.value = '';
                 
                 // Try quick command first
                 const quickResult = window.processQuickCommand(input);
                 
                 if (quickResult === true) {
                     // Command handled by quick commands
-                    commandInput.value = '';
+                    isProcessing = false;
                     return;
                 } else if (quickResult && typeof quickResult === 'object') {
                     // Quick scan command - route to AI
-                    commandInput.value = '';
                     if (typeof addTerminalLine === 'function') {
                         addTerminalLine('🤖 Atom: Roger that, Chief. Processing...', 'text');
                     }
@@ -363,25 +376,68 @@ if (typeof window !== 'undefined') {
                     // Send to AI with the generated prompt
                     if (typeof sendToAI === 'function') {
                         await sendToAI(quickResult.aiPrompt, quickResult.target);
+                    } else if (originalExecuteCommand) {
+                        await originalExecuteCommand(quickResult.aiPrompt);
                     }
+                    
+                    isProcessing = false;
                     return;
                 }
                 
                 // Otherwise use original execute (AI processing)
-                if (originalExecute) {
-                    await originalExecute(input);
+                if (originalExecuteCommand) {
+                    await originalExecuteCommand(input);
                 } else {
-                    // Fallback: send to AI
-                    commandInput.value = '';
+                    // Fallback: show processing message
                     if (typeof addTerminalLine === 'function') {
                         addTerminalLine('🤖 Atom: Processing your request, Chief...', 'text');
                     }
                     
+                    // Try to find and call AI function
                     if (typeof sendToAI === 'function') {
                         await sendToAI(input);
+                    } else if (window.sendAICommand) {
+                        await window.sendAICommand(input);
                     }
                 }
-            };
+            } catch (error) {
+                console.error('Execute error:', error);
+                if (typeof addTerminalLine === 'function') {
+                    addTerminalLine(`❌ Error: ${error.message}`, 'error');
+                }
+            } finally {
+                isProcessing = false;
+            }
+        };
+        
+        // Enter key handler - only once
+        if (!commandInput.hasAttribute('data-enter-bound')) {
+            commandInput.setAttribute('data-enter-bound', 'true');
+            
+            commandInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if (!isProcessing) {
+                        window.executeCommand();
+                    }
+                }
+            });
+        }
+        
+        // Execute button click handler
+        if (!executeBtn.hasAttribute('data-click-bound')) {
+            executeBtn.setAttribute('data-click-bound', 'true');
+            
+            executeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (!isProcessing) {
+                    window.executeCommand();
+                }
+            });
         }
         
         // Welcome message enhancement
@@ -389,8 +445,18 @@ if (typeof window !== 'undefined') {
             if (typeof addTerminalLine === 'function') {
                 addTerminalLine('💡 Tip: Type "help" for hacking commands or just talk to Atom!', 'success');
             }
-        }, 1000);
-    });
+        }, 1500);
+        
+        console.log('✅ Terminal enhancements initialized');
+    }
+    
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeTerminalEnhancements);
+    } else {
+        // DOM already loaded
+        setTimeout(initializeTerminalEnhancements, 100);
+    }
 }
 
 // Export for use in other scripts
