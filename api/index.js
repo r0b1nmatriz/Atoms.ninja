@@ -69,7 +69,7 @@ COMMAND EXECUTION FORMAT:
 
 ${sessionData?.targets?.length ? `\n🎯 ACTIVE TARGETS: ${Array.from(sessionData.targets).join(', ')}` : ''}`;
 
-          const model = geminiClient.getGenerativeModel({ model: 'gemini-pro' });
+          const model = geminiClient.getGenerativeModel({ model: 'gemini-2.0-flash' });
           const chat = model.startChat({
             history: (chatHistory || []).slice(-10).map(h => ({
               role: h.role === 'user' ? 'user' : 'model',
