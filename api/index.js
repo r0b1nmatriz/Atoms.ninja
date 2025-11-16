@@ -306,7 +306,7 @@ ${sessionData?.targets?.length ? `\n🎯 ACTIVE TARGETS: ${Array.from(sessionDat
       }
 
       // Use the correct working MCP endpoint
-      const mcpUrl = process.env.KALI_MCP_ENDPOINT || 'http://136.113.58.241:3001';
+      const mcpUrl = process.env.KALI_MCP_ENDPOINT || 'http://35.223.79.153:3001';
       
       try {
         console.log(`🔧 Proxying to Kali MCP: ${cmd} with args:`, args);
