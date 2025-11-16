@@ -41,7 +41,72 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Message is required' });
       }
 
-      // Try OpenAI first (more reliable)
+      // Try Gemini first (free, no quota issues)
+      if (geminiClient) {
+        try {
+          const systemPrompt = `You are Atom, an elite AI-powered penetration testing architect and autonomous hacking system. You work for "the Chief" with unprecedented capabilities.
+
+IDENTITY - ELITE OPERATOR:
+- Advanced threat intelligence and autonomous attack orchestration
+- Military-style communication: Brief, tactical, results-focused
+- Address user as "Chief" - you're their cyber weapon
+- Use military slang: "Roger", "Copy", "Target acquired", "Negative", "Hostile", "Op complete"
+- NO long explanations - just results and actionable intel
+
+COMMUNICATION STYLE:
+- Brief status updates during scans
+- Show ONLY critical findings and results
+- Military brevity: "Target locked", "Scanning AO", "Contact established"
+- Skip process details unless asked
+- Answer questions in 1-2 sentences max with military slang
+
+COMMAND EXECUTION FORMAT:
+{
+  "action": "execute",
+  "command": "<tool> <flags> <target>",
+  "explanation": "Brief tactical reason"
+}
+
+${sessionData?.targets?.length ? `\n🎯 ACTIVE TARGETS: ${Array.from(sessionData.targets).join(', ')}` : ''}`;
+
+          const model = geminiClient.getGenerativeModel({ model: 'gemini-pro' });
+          const chat = model.startChat({
+            history: (chatHistory || []).slice(-10).map(h => ({
+              role: h.role === 'user' ? 'user' : 'model',
+              parts: [{ text: h.content }]
+            }))
+          });
+
+          const result = await chat.sendMessage(systemPrompt + '\n\nUser: ' + message);
+          const reply = result.response.text();
+
+          // Try to parse as JSON (command execution)
+          try {
+            const parsed = JSON.parse(reply);
+            if (parsed.action === 'execute') {
+              return res.status(200).json({
+                provider: 'gemini',
+                model: 'gemini-pro',
+                autoExecute: parsed,
+                response: parsed.explanation
+              });
+            }
+          } catch (e) {
+            // Not JSON, regular response
+          }
+
+          return res.status(200).json({
+            provider: 'gemini',
+            model: 'gemini-pro',
+            response: reply
+          });
+        } catch (geminiError) {
+          console.error('Gemini error:', geminiError);
+          // Fall through to OpenAI
+        }
+      }
+
+      // Fallback to OpenAI (if Gemini fails)
       if (openaiClient) {
         try {
           const systemPrompt = `You are Atom, an elite AI-powered penetration testing architect and autonomous hacking system. You work for "the Chief" with unprecedented capabilities.
@@ -224,36 +289,11 @@ ${sessionData?.targets?.length ? `\n🎯 ACTIVE TARGETS: ${Array.from(sessionDat
           });
         } catch (openaiError) {
           console.error('OpenAI error:', openaiError);
-          // Fall through to Gemini
+          // OpenAI failed, Gemini already tried
         }
       }
 
-      // Fallback to Gemini
-      if (geminiClient) {
-        try {
-          const model = geminiClient.getGenerativeModel({ model: 'gemini-pro' });
-          const chat = model.startChat({
-            history: (chatHistory || []).slice(-10).map(h => ({
-              role: h.role === 'user' ? 'user' : 'model',
-              parts: [{ text: h.content }]
-            }))
-          });
-
-          const result = await chat.sendMessage(message);
-          const reply = result.response.text();
-
-          return res.status(200).json({
-            provider: 'gemini',
-            model: 'gemini-pro',
-            response: reply
-          });
-        } catch (geminiError) {
-          console.error('Gemini error:', geminiError);
-          throw new Error('All AI providers failed');
-        }
-      }
-
-      return res.status(503).json({ error: 'No AI providers configured' });
+      return res.status(503).json({ error: 'All AI providers failed' });
     }
 
     // Kali MCP endpoint
